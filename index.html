@@ -329,7 +329,7 @@
     <h1>Rota para Prompt Engineering</h1>
     <div class="subtitle">Python, Azure (AZ-900) e Prompt Engineering organizados em cronograma semanal — início segunda-feira, 13/07/2026.</div>
     <div class="note">
-      ⚠️ Nota de precisão: não tenho salvo aqui o detalhamento exato do seu roteiro de 10 meses de Prompt Engineering nem do plano de 6 semanas do AZ-900 já em andamento. O conteúdo abaixo é uma estrutura razoável que montei — ajuste os itens de cada semana conforme o que você já tem definido. Datas e cargas horárias são estimativas, não confirmadas por você.
+      ⚠️ Nota de precisão: a trilha de Azure (AZ-900) abaixo reflete o seu checklist real de 6 semanas, migrado do Painel-Bruna — seu progresso já marcado foi preservado. Já a trilha de Prompt Engineering ainda é uma estrutura razoável que montei, sem o detalhamento exato do seu roteiro de 10 meses — ajuste os itens de cada semana conforme o que você já tem definido. Datas e cargas horárias das demais trilhas são estimativas, não confirmadas por você.
     </div>
     <div class="overview" id="overview"></div>
   </div>
@@ -356,7 +356,7 @@
   <div class="panel" id="panel-azure">
     <div class="track-head">
       <h2><span class="badge b-azure">Azure</span>AZ-900</h2>
-      <div class="meta">6 semanas · já em andamento — confira contra seu checklist original</div>
+      <div class="meta">6 semanas · 30 min/dia · progresso migrado do Painel-Bruna</div>
     </div>
     <div id="azure-weeks"></div>
   </div>
@@ -455,41 +455,53 @@ const pythonWeeks = [
 ];
 
 const azureWeeks = [
-  {title:"Conceitos de nuvem", items:[
-    "O que é computação em nuvem",
-    "Modelos de nuvem: pública, privada, híbrida",
-    "IaaS, PaaS, SaaS",
-    "Revisar módulo introdutório no Microsoft Learn"
+  {title:"O que é cloud?", items:[
+    "SEG — O que é computação em nuvem",
+    "TER — Vantagens da cloud (escalabilidade, elasticidade)",
+    "QUA — IaaS vs PaaS vs SaaS",
+    "QUI — Cloud pública, privada e híbrida",
+    "SEX — Revisão + quiz do módulo",
+    "SÁB — Simulado rápido (5–10 questões)"
   ]},
-  {title:"Benefícios e tipos de serviço", items:[
-    "Alta disponibilidade e escalabilidade",
-    "Confiabilidade e previsibilidade de custos",
-    "Segurança e governança — visão geral",
-    "Exercícios do Microsoft Learn"
+  {title:"Serviços de computação", items:[
+    "SEG — Máquinas Virtuais (VMs)",
+    "TER — Azure App Service e Functions",
+    "QUA — Containers e Kubernetes (conceitual)",
+    "QUI — Azure Virtual Desktop",
+    "SEX — Revisão",
+    "SÁB — Simulado"
   ]},
-  {title:"Produtos e serviços do Azure", items:[
-    "Regiões, zonas de disponibilidade, grupos de recursos",
-    "Máquinas virtuais e opções de computação",
-    "Redes básicas no Azure",
-    "Armazenamento (Blob, Disk, File)"
+  {title:"Rede, Armazenamento e BD", items:[
+    "SEG — Redes virtuais (VNet, VPN, ExpressRoute)",
+    "TER — Armazenamento (Blob, File, Queue, Disk)",
+    "QUA — Banco de dados (SQL, Cosmos DB)",
+    "QUI — Azure DNS e Content Delivery",
+    "SEX — Revisão",
+    "SÁB — Simulado"
   ]},
-  {title:"Gerenciamento e governança", items:[
-    "Azure Portal, CLI, Cloud Shell (visão geral)",
-    "Azure Policy e Blueprints",
-    "Gestão de custos (Cost Management)",
-    "SLA e ciclo de vida de serviços"
+  {title:"Segurança e Identidade", items:[
+    "SEG — Microsoft Entra ID (antigo Azure AD)",
+    "TER — Autenticação: SSO, MFA, passwordless",
+    "QUA — Azure Security Center e Defender",
+    "QUI — Modelo de responsabilidade compartilhada",
+    "SEX — Revisão",
+    "SÁB — Simulado"
   ]},
-  {title:"Segurança, privacidade e compliance", items:[
-    "Modelo de responsabilidade compartilhada",
-    "Azure Active Directory — conceitos básicos",
-    "Defender for Cloud (visão geral)",
-    "Conformidade e proteção de dados"
+  {title:"Governança, Custos e Compliance", items:[
+    "SEG — Azure Policy e RBAC",
+    "TER — Calculadora de preços e TCO",
+    "QUA — Planos de suporte Azure",
+    "QUI — Compliance (GDPR, ISO, SOC)",
+    "SEX — Revisão",
+    "SÁB — Simulado"
   ]},
-  {title:"Revisão final e simulado", items:[
-    "Revisar todos os módulos",
-    "Fazer simulado oficial (Microsoft Learn ou terceiros)",
-    "Revisar pontos fracos identificados",
-    "Agendar a prova AZ-900"
+  {title:"Revisão geral + decisão de agendar", items:[
+    "SEG — Revisar pontos fracos — Semanas 1 e 2",
+    "TER — Revisar pontos fracos — Semanas 3 e 4",
+    "QUA — Revisar pontos fracos — Semana 5",
+    "QUI — Revisão geral rápida",
+    "SEX — Practice Assessment completo (45 min)",
+    "SÁB — Se ≥80% → agendar o exame! 🎯"
   ]},
 ];
 
@@ -615,6 +627,25 @@ function saveState(state){
 let state = loadState();
 
 function itemKey(track, weekIdx, itemIdx){ return `${track}-${weekIdx}-${itemIdx}`; }
+
+// ---- Migração única do progresso real do AZ-900 (salvo no Painel-Bruna, mesma origem) ----
+(function migrateAzureProgress(){
+  try{
+    const old = JSON.parse(localStorage.getItem('az900_checked') || '{}');
+    let changed = false;
+    Object.keys(old).forEach(k=>{
+      const m = k.match(/^w(\d+)_d(\d+)$/);
+      if(m && old[k]){
+        const wi = Number(m[1]), di = Number(m[2]);
+        if(di <= 5){ // dia 6 (domingo) é descanso e não entra na lista de itens
+          const newKey = itemKey('azure', wi, di);
+          if(!state[newKey]){ state[newKey] = true; changed = true; }
+        }
+      }
+    });
+    if(changed) saveState(state);
+  }catch(e){ /* sem progresso antigo ou dado inválido — segue normalmente */ }
+})();
 
 function toggleItem(track, weekIdx, itemIdx){
   const key = itemKey(track, weekIdx, itemIdx);
