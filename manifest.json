@@ -1,6 +1,6 @@
 {
   "name": "Painel de Estudos — Rota Prompt Engineering",
-  "short_name": "Painel Estudos",
+  "short_name": "Estudos",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
