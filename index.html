@@ -327,9 +327,9 @@
   <div class="wrap">
     <div class="eyebrow">Painel de Estudos · Bruna</div>
     <h1>Rota para Prompt Engineering</h1>
-    <div class="subtitle">Python, Azure (AZ-900) e Prompt Engineering organizados em cronograma semanal — início segunda-feira, 13/07/2026.</div>
+    <div class="subtitle">Foco atual: Python e Prompt Engineering, ~30 min/dia — retomada em segunda-feira, 31/08/2026.</div>
     <div class="note">
-      ⚠️ Nota de precisão: a trilha de Azure (AZ-900) abaixo reflete o seu checklist real de 6 semanas, migrado do Painel-Bruna — seu progresso já marcado foi preservado. Já a trilha de Prompt Engineering ainda é uma estrutura razoável que montei, sem o detalhamento exato do seu roteiro de 10 meses — ajuste os itens de cada semana conforme o que você já tem definido. Datas e cargas horárias das demais trilhas são estimativas, não confirmadas por você.
+      ⚠️ Nota de precisão: as trilhas de Azure (AZ-900) e Apps continuam disponíveis nas abas acima para consulta e progresso já feito, mas foram retiradas da rotação de "Esta semana" — o foco agora é só Python e Prompt Engineering, uma de cada vez, para evitar a sobrecarga que travou o estudo antes. A trilha de Prompt Engineering ainda é uma estrutura razoável que montei, sem o detalhamento exato do seu roteiro de 10 meses — ajuste os itens de cada semana conforme o que você já tem definido. Datas e cargas horárias das demais trilhas são estimativas, não confirmadas por você.
     </div>
     <div class="overview" id="overview"></div>
   </div>
@@ -356,7 +356,7 @@
   <div class="panel" id="panel-azure">
     <div class="track-head">
       <h2><span class="badge b-azure">Azure</span>AZ-900</h2>
-      <div class="meta">6 semanas · 30 min/dia · progresso migrado do Painel-Bruna</div>
+      <div class="meta">6 semanas · 30 min/dia · progresso migrado do Painel-Bruna · pausada por ora</div>
     </div>
     <div id="azure-weeks"></div>
   </div>
@@ -372,7 +372,7 @@
   <div class="panel" id="panel-apps">
     <div class="track-head">
       <h2><span class="badge b-apps">Apps</span>Criação de apps (HTML/CSS/JS)</h2>
-      <div class="meta">7 semanas · base pra continuar construindo apps como este</div>
+      <div class="meta">7 semanas · base pra continuar construindo apps como este · pausada por ora</div>
     </div>
     <div id="apps-weeks"></div>
   </div>
@@ -385,7 +385,7 @@
 </div>
 
 <script>
-const START_DATE = new Date(2026,6,13); // segunda-feira, 13/07/2026
+const START_DATE = new Date(2026,7,31); // segunda-feira, 31/08/2026 — retomada
 
 function addDays(base, days){
   const d = new Date(base);
@@ -747,11 +747,12 @@ function renderToday(){
     el.innerHTML = `<div class="today-empty">O cronograma começa em ${fmt(START_DATE)} (segunda-feira). Ainda não começou.</div>`;
     return;
   }
+  // Trilhas ativas na rotação de "Esta semana": apenas Python e Prompt Engineering,
+  // para evitar sobrecarga. Azure e Apps ficam pausadas aqui, mas continuam
+  // acessíveis (com o progresso já feito) nas próprias abas.
   const tracks = [
     {weeks:pythonWeeks, key:'python', badge:'b-python', label:'Python'},
-    {weeks:azureWeeks, key:'azure', badge:'b-azure', label:'Azure'},
     {weeks:peWeeks, key:'pe', badge:'b-pe', label:'Prompt Eng.'},
-    {weeks:appsWeeks, key:'apps', badge:'b-apps', label:'Apps'},
   ];
   let html = `<div style="font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-bottom:12px;">Semana ${idx+1} · ${weekRange(idx)}</div>`;
   let any = false;
