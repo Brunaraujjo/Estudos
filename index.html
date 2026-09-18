@@ -327,9 +327,9 @@
   <div class="wrap">
     <div class="eyebrow">Painel de Estudos · Bruna</div>
     <h1>Rota para Prompt Engineering</h1>
-    <div class="subtitle">Foco atual: Python e Prompt Engineering, ~30 min/dia — retomada em segunda-feira, 31/08/2026.</div>
+    <div class="subtitle">Foco atual: Python e Prompt Engineering, diariamente das 14h às 15h — início quinta-feira, 01/10/2026.</div>
     <div class="note">
-      ⚠️ Nota de precisão: as trilhas de Azure (AZ-900) e Apps continuam disponíveis nas abas acima para consulta e progresso já feito, mas foram retiradas da rotação de "Esta semana" — o foco agora é só Python e Prompt Engineering, uma de cada vez, para evitar a sobrecarga que travou o estudo antes. A trilha de Prompt Engineering ainda é uma estrutura razoável que montei, sem o detalhamento exato do seu roteiro de 10 meses — ajuste os itens de cada semana conforme o que você já tem definido. Datas e cargas horárias das demais trilhas são estimativas, não confirmadas por você.
+      ⚠️ Nota: as trilhas de Azure (AZ-900) e Apps continuam disponíveis nas abas acima para consulta e progresso já feito, mas ficam fora da rotação de "Esta semana" — o foco é só Python e Prompt Engineering, uma de cada vez, para evitar a sobrecarga que travou o estudo antes. A trilha de Prompt Engineering (semanas 1–6) agora segue fontes reais e gratuitas — tutorial interativo da Anthropic, curso curto da DeepLearning.AI, whitepaper de Prompt Engineering do Google e o guia da DAIR.AI — com os links na própria aba. De 18/09 a 30/09 é o período de revisão leve antes do início oficial (ver plano separado). Datas e cargas horárias das trilhas de Azure e Apps continuam sendo estimativas, não confirmadas por você.
     </div>
     <div class="overview" id="overview"></div>
   </div>
@@ -364,7 +364,14 @@
   <div class="panel" id="panel-pe">
     <div class="track-head">
       <h2><span class="badge b-pe">Prompt Eng.</span>Roteiro estruturado</h2>
-      <div class="meta">10 semanas iniciais · estrutura a validar com seu roteiro de 10 meses</div>
+      <div class="meta">12 semanas · fontes: Anthropic, DeepLearning.AI, Google, DAIR.AI</div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin:-6px 0 14px;line-height:1.6;">
+      Fontes usadas nas semanas 1–6:
+      <a href="https://github.com/anthropics/prompt-eng-interactive-tutorial" target="_blank" style="color:var(--violet);">tutorial interativo da Anthropic</a>,
+      <a href="https://www.deeplearning.ai/courses/chatgpt-prompt-eng/" target="_blank" style="color:var(--violet);">curso curto da DeepLearning.AI</a>,
+      <a href="https://www.leeboonstra.dev/writing/write-prompting-whitepaper/" target="_blank" style="color:var(--violet);">whitepaper de Prompt Engineering do Google</a>,
+      <a href="https://www.promptingguide.ai/" target="_blank" style="color:var(--violet);">guia da DAIR.AI</a>.
     </div>
     <div id="pe-weeks"></div>
   </div>
@@ -385,7 +392,7 @@
 </div>
 
 <script>
-const START_DATE = new Date(2026,7,31); // segunda-feira, 31/08/2026 — retomada
+const START_DATE = new Date(2026,9,1); // quinta-feira, 01/10/2026 — início do cronograma novo
 
 function addDays(base, days){
   const d = new Date(base);
@@ -506,29 +513,41 @@ const azureWeeks = [
 ];
 
 const peWeeks = [
-  {title:"Fundamentos de prompt engineering", items:[
-    "Diferença entre zero-shot, few-shot e chain-of-thought",
-    "Estrutura de um bom prompt (contexto, instrução, formato)",
-    "Erros comuns e como corrigi-los",
-    "Praticar reescrita de prompts fracos"
+  {title:"Fundamentos — Tutorial interativo da Anthropic (cap. 1–3)", items:[
+    "Fazer os capítulos 1–3 do tutorial interativo da Anthropic (github.com/anthropics/prompt-eng-interactive-tutorial): estrutura básica de um prompt, clareza e diretividade",
+    "Capítulo 3: atribuir papéis ao modelo (role prompting) e observar como muda a resposta",
+    "Separar dados de instruções usando delimitadores/tags",
+    "Praticar 3 prompts próprios aplicando esses princípios"
   ]},
-  {title:"Fundamentos (continuação)", items:[
-    "Prompt system vs prompt de usuário",
-    "Controle de tom e formato de saída",
-    "Uso de exemplos (few-shot) para guiar respostas",
-    "Comparar respostas com e sem boas práticas"
+  {title:"Fundamentos — Tutorial da Anthropic (cap. 4–6)", items:[
+    "Capítulo 4: formatar a saída do modelo (JSON, listas, tags XML)",
+    "Capítulo 5: pedir ao modelo para pensar passo a passo (chain-of-thought) antes da resposta final",
+    "Capítulo 6: dar exemplos ao modelo (few-shot prompting)",
+    "Comparar respostas com e sem essas técnicas nos seus próprios testes"
   ]},
-  {title:"Técnicas avançadas", items:[
-    "Chain-of-thought e raciocínio passo a passo",
-    "Estruturação de outputs (JSON, listas, tags)",
-    "Prompt chaining (dividir tarefas complexas)",
-    "Testar variações e medir impacto"
+  {title:"Curso DeepLearning.AI — ChatGPT Prompt Engineering for Developers", items:[
+    "Fazer o curso curto e gratuito 'ChatGPT Prompt Engineering for Developers' (deeplearning.ai/courses/chatgpt-prompt-eng, ~1h30)",
+    "Praticar os notebooks do curso (iterar em prompts, resumir texto, transformar formato)",
+    "Anotar 3 técnicas do curso que dá pra aplicar no seu trabalho de avaliação de respostas",
+    "Comparar a abordagem do curso com o que viu no tutorial da Anthropic"
   ]},
-  {title:"Técnicas avançadas (continuação)", items:[
-    "Lidar com ambiguidade na instrução",
-    "Prompts para tarefas de avaliação (conecta com seu trabalho atual)",
-    "Reduzir alucinação via instruções claras",
-    "Documentar aprendizados em notas próprias"
+  {title:"Whitepaper de Prompt Engineering — Google (Lee Boonstra)", items:[
+    "Ler as seções sobre zero-shot, few-shot e system prompting",
+    "Ler as seções sobre chain-of-thought, self-consistency e ReAct",
+    "Ler as seções de boas práticas gerais (ser específico, usar exemplos, testar variações, documentar tentativas)",
+    "Resumir em suas palavras as 5 técnicas mais úteis pro seu trabalho"
+  ]},
+  {title:"Guia DAIR.AI (Prompt Engineering Guide)", items:[
+    "Ler a seção de técnicas avançadas (Tree of Thoughts, ReAct, visão geral de RAG) em promptingguide.ai",
+    "Ler a seção sobre riscos e limitações (alucinação, prompt injection, viés)",
+    "Explorar a seção de casos de uso ligados a avaliação/classificação de respostas",
+    "Guardar como referência de consulta — não precisa decorar tudo"
+  ]},
+  {title:"Boas práticas da Anthropic aplicadas ao seu trabalho", items:[
+    "Ler a documentação oficial da Anthropic sobre prompting best practices (docs.claude.com)",
+    "Praticar uso de tags XML para estruturar prompts complexos",
+    "Praticar prompt chaining (dividir uma tarefa grande em etapas menores)",
+    "Aplicar 1 técnica nova em um prompt real do seu trabalho (OneForma/Lighthouse/Sovrano)"
   ]},
   {title:"Avaliação estruturada de respostas de LLM", items:[
     "Critérios de avaliação (precisão, relevância, tom, segurança)",
