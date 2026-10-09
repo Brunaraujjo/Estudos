@@ -344,9 +344,9 @@
   <div class="wrap">
     <div class="eyebrow">Painel de Estudos · Bruna</div>
     <h1>Rota para Prompt Engineering</h1>
-    <div class="subtitle">Foco atual: Python e Prompt Engineering, diariamente das 14h às 15h — início segunda-feira, 19/10/2026. Inglês (Fluency Academy) às terças e quintas.</div>
+    <div class="subtitle">Foco atual: Python e Prompt Engineering, diariamente das 14h às 15h — início segunda-feira, 19/10/2026. Inglês (Fluency Academy) às terças e quintas, mais 15–20 min de prática nos outros dias.</div>
     <div class="note">
-      ⚠️ Nota: as trilhas de Azure (AZ-900) e Apps continuam disponíveis nas abas acima para consulta e progresso já feito, mas ficam fora da rotação de "Esta semana" — o foco é só Python e Prompt Engineering, uma de cada vez, para evitar a sobrecarga que travou o estudo antes. A trilha de Prompt Engineering (semanas 1–6) agora segue fontes reais e gratuitas — tutorial interativo da Anthropic, curso curto da DeepLearning.AI, whitepaper de Prompt Engineering do Google e o guia da DAIR.AI — com os links na própria aba. De 18/09 a 18/10 é o período de revisão leve antes do início oficial em 19/10 (ver plano separado). O inglês entra na rotina como compromisso fixo de terça e quinta, junto com Python e Prompt Engineering. Datas e cargas horárias das trilhas de Azure e Apps continuam sendo estimativas, não confirmadas por você.
+      ⚠️ Nota: as trilhas de Azure (AZ-900) e Apps continuam disponíveis nas abas acima para consulta e progresso já feito, mas ficam fora da rotação de "Esta semana" — o foco é só Python e Prompt Engineering, uma de cada vez, para evitar a sobrecarga que travou o estudo antes. A trilha de Prompt Engineering (semanas 1–6) agora segue fontes reais e gratuitas — tutorial interativo da Anthropic, curso curto da DeepLearning.AI, whitepaper de Prompt Engineering do Google e o guia da DAIR.AI — com os links na própria aba. De 18/09 a 18/10 é o período de revisão leve antes do início oficial em 19/10 (ver plano separado). O inglês entra na rotina com aula fixa na terça e quinta e 15–20 min de prática na segunda, quarta e sexta, junto com Python e Prompt Engineering. Datas e cargas horárias das trilhas de Azure e Apps continuam sendo estimativas, não confirmadas por você.
     </div>
     <div class="overview" id="overview"></div>
   </div>
@@ -396,7 +396,7 @@
   <div class="panel" id="panel-ingles">
     <div class="track-head">
       <h2><span class="badge b-en">Inglês</span>Fluency Academy</h2>
-      <div class="meta">aulas às terças e quintas · 12 semanas (estimativa)</div>
+      <div class="meta">aulas às terças e quintas + 15–20 min de prática seg/qua/sex · 12 semanas (estimativa)</div>
     </div>
     <div id="ingles-weeks"></div>
   </div>
@@ -657,13 +657,16 @@ const appsWeeks = [
   ]},
 ];
 
-// Inglês — Fluency Academy: aulas às terças e quintas.
+// Inglês — Fluency Academy: aulas às terças e quintas + 15–20 min de prática nos outros dias úteis.
 // Nº de semanas é uma estimativa (12); ajuste conforme a duração real do curso.
 const englishWeeks = Array.from({length:12}, (_, i) => ({
   title: "Aulas de inglês — Fluency Academy",
   items: [
+    "SEG — 15–20 min de prática de inglês (vocabulário, listening ou conversação)",
     "TER — Aula de inglês",
-    "QUI — Aula de inglês"
+    "QUA — 15–20 min de prática de inglês",
+    "QUI — Aula de inglês",
+    "SEX — 15–20 min de prática de inglês"
   ]
 }));
 
