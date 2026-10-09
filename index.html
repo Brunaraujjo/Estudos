@@ -308,6 +308,29 @@
     border-radius:5px;
   }
   .estante-link:hover{border-color:#5fd4c8;}
+  /* ---- COMPROMISSOS DIÁRIOS ---- */
+  .habit-box{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-left:3px solid #5fd4c8;
+    border-radius:8px;
+    padding:16px;
+    margin-bottom:20px;
+  }
+  .habit-box h3{margin:0 0 4px;font-size:14px;font-family:var(--mono);color:#5fd4c8;text-transform:uppercase;letter-spacing:.06em;}
+  .habit-hint{font-size:12.5px;color:var(--muted);margin:0 0 12px;min-height:18px;}
+  .habit-row{padding:10px 0;border-top:1px solid var(--line);}
+  .habit-row:first-of-type{border-top:none;}
+  .habit-main{display:flex;align-items:center;gap:9px;font-size:14px;}
+  .habit-main input[type=checkbox]{width:18px;height:18px;accent-color:#5fd4c8;flex-shrink:0;}
+  .habit-main label{cursor:pointer;flex:1;}
+  .habit-streak{font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:nowrap;}
+  .habit-dots{display:flex;gap:6px;margin:8px 0 0 27px;}
+  .dot{width:22px;text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--muted);}
+  .dot i{display:block;width:14px;height:14px;margin:0 auto 3px;border-radius:50%;border:1.5px solid var(--line);}
+  .dot.on i{background:#5fd4c8;border-color:#5fd4c8;}
+  .dot.today i{border-color:var(--amber);}
+  .dot.today.on i{border-color:#5fd4c8;}
   #app-content{display:none;}
 </style>
 </head>
@@ -344,9 +367,9 @@
   <div class="wrap">
     <div class="eyebrow">Painel de Estudos · Bruna</div>
     <h1>Rota para Prompt Engineering</h1>
-    <div class="subtitle">Foco atual: Python e Prompt Engineering, diariamente das 14h às 15h — início segunda-feira, 19/10/2026. Inglês (Fluency Academy) às terças e quintas, mais 15–20 min de prática nos outros dias.</div>
+    <div class="subtitle">Foco atual: Python e Prompt Engineering, todas as manhãs, depois do café (mínimo de 10 minutos, ideal 1 hora) — início segunda-feira, 19/10/2026. Inglês (Fluency Academy) às terças e quintas.</div>
     <div class="note">
-      ⚠️ Nota: as trilhas de Azure (AZ-900) e Apps continuam disponíveis nas abas acima para consulta e progresso já feito, mas ficam fora da rotação de "Esta semana" — o foco é só Python e Prompt Engineering, uma de cada vez, para evitar a sobrecarga que travou o estudo antes. A trilha de Prompt Engineering (semanas 1–6) agora segue fontes reais e gratuitas — tutorial interativo da Anthropic, curso curto da DeepLearning.AI, whitepaper de Prompt Engineering do Google e o guia da DAIR.AI — com os links na própria aba. De 18/09 a 18/10 é o período de revisão leve antes do início oficial em 19/10 (ver plano separado). O inglês entra na rotina com aula fixa na terça e quinta e 15–20 min de prática na segunda, quarta e sexta, junto com Python e Prompt Engineering. Datas e cargas horárias das trilhas de Azure e Apps continuam sendo estimativas, não confirmadas por você.
+      ⚠️ Nota: as trilhas de Azure (AZ-900) e Apps continuam disponíveis nas abas acima para consulta e progresso já feito, mas ficam fora da rotação de "Esta semana" — o foco é só Python e Prompt Engineering, uma de cada vez, para evitar a sobrecarga que travou o estudo antes. A trilha de Prompt Engineering (semanas 1–6) agora segue fontes reais e gratuitas — tutorial interativo da Anthropic, curso curto da DeepLearning.AI, whitepaper de Prompt Engineering do Google e o guia da DAIR.AI — com os links na própria aba. De 18/09 a 18/10 é o período de revisão leve antes do início oficial em 19/10 (ver plano separado). O inglês entra na rotina como compromisso fixo de terça e quinta, junto com Python e Prompt Engineering. Datas e cargas horárias das trilhas de Azure e Apps continuam sendo estimativas, não confirmadas por você.
     </div>
     <div class="overview" id="overview"></div>
   </div>
@@ -356,6 +379,11 @@
 
 <main>
   <div class="panel active" id="panel-hoje">
+    <div class="habit-box">
+      <h3>Meus 2 compromissos · hoje</h3>
+      <div class="habit-hint" id="habit-hint"></div>
+      <div id="habit-content"><div class="today-empty">Carregando…</div></div>
+    </div>
     <div class="today-box">
       <h3>Esta semana</h3>
       <div id="today-content"></div>
@@ -396,7 +424,7 @@
   <div class="panel" id="panel-ingles">
     <div class="track-head">
       <h2><span class="badge b-en">Inglês</span>Fluency Academy</h2>
-      <div class="meta">aulas às terças e quintas + 15–20 min de prática seg/qua/sex · 12 semanas (estimativa)</div>
+      <div class="meta">aulas às terças e quintas · 12 semanas (estimativa)</div>
     </div>
     <div id="ingles-weeks"></div>
   </div>
@@ -657,16 +685,13 @@ const appsWeeks = [
   ]},
 ];
 
-// Inglês — Fluency Academy: aulas às terças e quintas + 15–20 min de prática nos outros dias úteis.
+// Inglês — Fluency Academy: aulas às terças e quintas.
 // Nº de semanas é uma estimativa (12); ajuste conforme a duração real do curso.
 const englishWeeks = Array.from({length:12}, (_, i) => ({
   title: "Aulas de inglês — Fluency Academy",
   items: [
-    "SEG — 15–20 min de prática de inglês (vocabulário, listening ou conversação)",
     "TER — Aula de inglês",
-    "QUA — 15–20 min de prática de inglês",
-    "QUI — Aula de inglês",
-    "SEX — 15–20 min de prática de inglês"
+    "QUI — Aula de inglês"
   ]
 }));
 
@@ -892,6 +917,13 @@ render();
     createUserWithEmailAndPassword,
     signOut
   } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+  import {
+    getFirestore,
+    collection,
+    doc,
+    setDoc,
+    onSnapshot
+  } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDAoPv4qk8RHjhq6QFn5voIAFbMtzzwPYc",
@@ -905,6 +937,113 @@ render();
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // ---- COMPROMISSOS DIÁRIOS (salvos na nuvem: users/{uid}/habitos/{AAAA-MM-DD}) ----
+  const HABITS = [
+    {key:'acordei', label:'Levantei dentro da janela do dia'},
+    {key:'estudei', label:'Estudei pelo menos 10 minutos'}
+  ];
+  const WEEKDAYS = ['D','S','T','Q','Q','S','S'];
+  let habitData = {};      // { '2026-10-10': {acordei:true, estudei:false}, ... }
+  let habitUid = null;
+  let habitUnsub = null;
+
+  // Chave da data no fuso do celular (não usa UTC, para não virar o dia às 21h)
+  function dayKey(d){
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }
+  function daysAgo(n){
+    const d = new Date();
+    d.setHours(12,0,0,0);          // meio-dia evita problemas de horário de verão
+    d.setDate(d.getDate()-n);
+    return d;
+  }
+  function isDone(habitKey, dKey){
+    return !!(habitData[dKey] && habitData[dKey][habitKey]);
+  }
+  // Dias seguidos: conta para trás a partir de hoje. Se hoje ainda não foi marcado,
+  // começa de ontem (o dia ainda não acabou, então não "quebra" a sequência).
+  function streakOf(habitKey){
+    let n = isDone(habitKey, dayKey(daysAgo(0))) ? 0 : 1;
+    let count = 0;
+    while(n < 400 && isDone(habitKey, dayKey(daysAgo(n)))){ count++; n++; }
+    return count;
+  }
+
+  function renderHabits(){
+    const box = document.getElementById('habit-content');
+    const hint = document.getElementById('habit-hint');
+    if(!box) return;
+    const today = dayKey(daysAgo(0));
+    box.innerHTML = HABITS.map(h=>{
+      const dots = [6,5,4,3,2,1,0].map(n=>{
+        const d = daysAgo(n);
+        const on = isDone(h.key, dayKey(d));
+        return `<div class="dot${on?' on':''}${n===0?' today':''}"><i></i>${WEEKDAYS[d.getDay()]}</div>`;
+      }).join('');
+      const st = streakOf(h.key);
+      return `<div class="habit-row">
+        <div class="habit-main">
+          <input type="checkbox" id="habit-${h.key}" data-habit="${h.key}" ${isDone(h.key,today)?'checked':''}>
+          <label for="habit-${h.key}">${h.label}</label>
+          <span class="habit-streak">${st} ${st===1?'dia seguido':'dias seguidos'}</span>
+        </div>
+        <div class="habit-dots">${dots}</div>
+      </div>`;
+    }).join('');
+    box.querySelectorAll('input[data-habit]').forEach(cb=>{
+      cb.addEventListener('change', ()=> saveHabit(cb.dataset.habit, cb.checked));
+    });
+
+    // Lembrete da regra "não falhar duas vezes seguidas"
+    const yesterday = dayKey(daysAgo(1));
+    const missedYesterday = HABITS.filter(h=>!isDone(h.key, yesterday));
+    const todayPending = HABITS.filter(h=>!isDone(h.key, today));
+    if(todayPending.length === 0){
+      hint.textContent = 'Os dois feitos hoje. 🎉';
+    } else if(missedYesterday.some(h=>todayPending.includes(h))){
+      hint.textContent = 'Ontem ficou em branco em algum compromisso. Hoje é o dia de não falhar duas vezes.';
+    } else {
+      hint.textContent = 'Versão mínima conta: levantar e 10 minutos de estudo.';
+    }
+  }
+
+  async function saveHabit(habitKey, value){
+    if(!habitUid) return;
+    const key = dayKey(daysAgo(0));
+    // Atualiza na tela já, sem esperar a nuvem
+    habitData[key] = Object.assign({}, habitData[key], {[habitKey]: value});
+    renderHabits();
+    try{
+      await setDoc(doc(db, 'users', habitUid, 'habitos', key),
+                   {[habitKey]: value}, {merge:true});
+    }catch(err){
+      document.getElementById('habit-hint').textContent =
+        'Não consegui salvar na nuvem agora. Confira a conexão e tente de novo.';
+    }
+  }
+
+  function startHabits(uid){
+    habitUid = uid;
+    if(habitUnsub) habitUnsub();
+    habitUnsub = onSnapshot(collection(db, 'users', uid, 'habitos'), (snap)=>{
+      habitData = {};
+      snap.forEach(d=>{ habitData[d.id] = d.data(); });
+      renderHabits();
+    }, ()=>{
+      document.getElementById('habit-content').innerHTML =
+        '<div class="today-empty">Não consegui carregar os compromissos agora.</div>';
+    });
+  }
+  function stopHabits(){
+    if(habitUnsub){ habitUnsub(); habitUnsub = null; }
+    habitUid = null;
+    habitData = {};
+  }
 
   const authScreen = document.getElementById('auth-screen');
   const appContent = document.getElementById('app-content');
@@ -986,10 +1125,12 @@ render();
       authScreen.style.display = 'none';
       appContent.style.display = 'block';
       userEmailLabel.textContent = user.email || '';
+      startHabits(user.uid);
     } else {
       authScreen.style.display = 'flex';
       appContent.style.display = 'none';
       passwordInput.value = '';
+      stopHabits();
     }
   });
 </script>
