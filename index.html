@@ -82,8 +82,10 @@
     margin-top:22px;
   }
   @media(min-width:640px){
-    .overview{grid-template-columns:repeat(4,1fr);}
+    .overview{grid-template-columns:repeat(5,1fr);}
   }
+  .overview .stat:last-child:nth-child(odd){grid-column:1 / -1;}
+  @media (min-width:700px){ .overview .stat:last-child:nth-child(odd){grid-column:auto;} }
   .stat{
     background:var(--panel);
     border:1px solid var(--line);
@@ -163,6 +165,9 @@
   .item label{cursor:pointer;}
   .item.done label{color:var(--muted);text-decoration:line-through;}
 
+  .en-sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin:2px 0 8px;}
+  .en-class{padding:10px 14px;border:1px solid var(--line);border-radius:10px;margin-bottom:12px;background:var(--panel);}
+  .en-class h4{margin:0 0 4px;font-size:12px;font-family:var(--mono);color:var(--amber);text-transform:uppercase;letter-spacing:.06em;}
   .badge{
     display:inline-block;
     font-family:var(--mono);
@@ -367,9 +372,9 @@
   <div class="wrap">
     <div class="eyebrow">Painel de Estudos · Bruna</div>
     <h1>Rota para Prompt Engineering</h1>
-    <div class="subtitle">Foco atual: Python e Prompt Engineering, todas as manhãs, depois do café (mínimo de 10 minutos, ideal 1 hora) — início segunda-feira, 19/10/2026. Inglês (Fluency Academy) às terças e quintas.</div>
+    <div class="subtitle">Foco atual: Python e Prompt Engineering, todas as manhãs, depois do café (mínimo de 10 minutos, ideal 1 hora) — início segunda-feira, 19/10/2026. Inglês (Fluency Academy): plataforma todos os dias e conversação (individual e em grupo) às terças e quintas — o inglês já está liberado desde 08/10.</div>
     <div class="note">
-      ⚠️ Nota: as trilhas de Azure (AZ-900) e Apps continuam disponíveis nas abas acima para consulta e progresso já feito, mas ficam fora da rotação de "Esta semana" — o foco é só Python e Prompt Engineering, uma de cada vez, para evitar a sobrecarga que travou o estudo antes. A trilha de Prompt Engineering (semanas 1–6) agora segue fontes reais e gratuitas — tutorial interativo da Anthropic, curso curto da DeepLearning.AI, whitepaper de Prompt Engineering do Google e o guia da DAIR.AI — com os links na própria aba. De 18/09 a 18/10 é o período de revisão leve antes do início oficial em 19/10 (ver plano separado). O inglês entra na rotina como compromisso fixo de terça e quinta, junto com Python e Prompt Engineering. Datas e cargas horárias das trilhas de Azure e Apps continuam sendo estimativas, não confirmadas por você.
+      ⚠️ Nota: as trilhas de Azure (AZ-900) e Apps continuam disponíveis nas abas acima para consulta e progresso já feito, mas ficam fora da rotação de "Esta semana" — o foco é só Python e Prompt Engineering, uma de cada vez, para evitar a sobrecarga que travou o estudo antes. A trilha de Prompt Engineering (semanas 1–6) agora segue fontes reais e gratuitas — tutorial interativo da Anthropic, curso curto da DeepLearning.AI, whitepaper de Prompt Engineering do Google e o guia da DAIR.AI — com os links na própria aba. De 18/09 a 18/10 é o período de revisão leve antes do início oficial em 19/10 (ver plano separado). O inglês já está em andamento (Fluency Academy, desde 08/10): estudo diário na plataforma, por unidade, e conversação às terças e quintas, uma individual e uma em grupo por semana. Datas e cargas horárias das trilhas de Azure e Apps continuam sendo estimativas, não confirmadas por você.
     </div>
     <div class="overview" id="overview"></div>
   </div>
@@ -380,7 +385,7 @@
 <main>
   <div class="panel active" id="panel-hoje">
     <div class="habit-box">
-      <h3>Meus 2 compromissos · hoje</h3>
+      <h3>Meus compromissos · hoje</h3>
       <div class="habit-hint" id="habit-hint"></div>
       <div id="habit-content"><div class="today-empty">Carregando…</div></div>
     </div>
@@ -424,7 +429,7 @@
   <div class="panel" id="panel-ingles">
     <div class="track-head">
       <h2><span class="badge b-en">Inglês</span>Fluency Academy</h2>
-      <div class="meta">aulas às terças e quintas · 12 semanas (estimativa)</div>
+      <div class="meta">plataforma todos os dias · conversação às terças e quintas</div>
     </div>
     <div id="ingles-weeks"></div>
   </div>
@@ -685,15 +690,14 @@ const appsWeeks = [
   ]},
 ];
 
-// Inglês — Fluency Academy: aulas às terças e quintas.
-// Nº de semanas é uma estimativa (12); ajuste conforme a duração real do curso.
-const englishWeeks = Array.from({length:12}, (_, i) => ({
-  title: "Aulas de inglês — Fluency Academy",
-  items: [
-    "TER — Aula de inglês",
-    "QUI — Aula de inglês"
-  ]
-}));
+// Inglês — Fluency Academy. O curso é organizado por módulos e unidades (não por semanas).
+// Cada unidade tem as mesmas 5 partes. Para incluir o próximo módulo, acrescente uma linha em ENGLISH_MODULES.
+const ENGLISH_PARTS = ["Vocabulário","Linguagem","Compreensão","Pronúncia","Prática do Inglês"];
+const ENGLISH_MODULES = [
+  {id:'M1', name:'Módulo 1 — First Steps', units:8, finished:[1,2]}  // finished: unidades já concluídas antes do Painel
+];
+// Conversação ao vivo: uma individual e uma em grupo por semana (terça ou quinta)
+const ENGLISH_CLASSES = [{k:'ind', label:'Conversação individual'}, {k:'grupo', label:'Conversação em grupo'}];
 
 // ---- STORAGE ----
 const STORAGE_KEY = 'painel-estudos-v1';
@@ -707,6 +711,95 @@ function saveState(state){
   try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
 }
 let state = loadState();
+
+// ---- Inglês: chaves, semente única e funções ----
+function enKey(modId, unit, partIdx){ return `en-${modId}-U${unit}-${partIdx}`; }
+function mondayOf(d){
+  const x = new Date(d); x.setHours(12,0,0,0);
+  const dow = (x.getDay()+6)%7;           // segunda = 0
+  x.setDate(x.getDate()-dow);
+  return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
+}
+function enClassKey(weekMonday, k){ return `en-aula-${weekMonday}-${k}`; }
+(function seedEnglish(){
+  if(state['en-seed-v1']) return;          // só roda uma vez, para não desfazer o que você desmarcar depois
+  ENGLISH_MODULES.forEach(m=>{
+    (m.finished||[]).forEach(u=>{ ENGLISH_PARTS.forEach((_,i)=>{ state[enKey(m.id,u,i)] = true; }); });
+  });
+  state['en-seed-v1'] = true;
+  saveState(state);
+})();
+function unitDone(m, u){ return ENGLISH_PARTS.filter((_,i)=>state[enKey(m.id,u,i)]).length; }
+function currentUnit(){                    // primeira unidade ainda não concluída
+  for(const m of ENGLISH_MODULES){
+    for(let u=1; u<=m.units; u++){
+      if(unitDone(m,u) < ENGLISH_PARTS.length) return {m, u};
+    }
+  }
+  return null;
+}
+function toggleKey(key){ state[key] = !state[key]; saveState(state); render(); }
+function englishStats(){
+  let total=0, done=0;
+  ENGLISH_MODULES.forEach(m=>{ for(let u=1;u<=m.units;u++){ total += ENGLISH_PARTS.length; done += unitDone(m,u); } });
+  return {total, done};
+}
+function englishClassesHtml(prefix){
+  // A semana de créditos vai de segunda a sábado: no domingo já conta como a semana seguinte
+  const wk = mondayOf(new Date(Date.now() + 24*60*60*1000));
+  return `<div class="en-class"><h4>Conversação desta semana (seg a sáb)</h4>` + ENGLISH_CLASSES.map(c=>{
+    const key = enClassKey(wk, c.k), isDone = !!state[key], id = `${prefix}-${key}`;
+    return `<div class="item${isDone?' done':''}"><input type="checkbox" id="${id}" data-en-key="${key}" ${isDone?'checked':''}><label for="${id}">${c.label}</label></div>`;
+  }).join('') + `</div>`;
+}
+function englishUnitItemsHtml(m, u, prefix){
+  return ENGLISH_PARTS.map((name,i)=>{
+    const key = enKey(m.id,u,i), isDone = !!state[key], id = `${prefix}-${key}`;
+    return `<div class="item${isDone?' done':''}"><input type="checkbox" id="${id}" data-en-key="${key}" ${isDone?'checked':''}><label for="${id}">${name}</label></div>`;
+  }).join('');
+}
+function bindEnglish(root){
+  root.querySelectorAll('input[data-en-key]').forEach(cb=>cb.addEventListener('change', ()=>toggleKey(cb.dataset.enKey)));
+}
+function renderEnglishToday(){
+  const cu = currentUnit();
+  let h = `<div style="margin-bottom:14px;"><span class="badge b-en">Inglês</span><strong style="font-size:13.5px;">Fluency Academy</strong>`;
+  h += englishClassesHtml('today');
+  if(cu){
+    h += `<div class="en-sub">${cu.m.name} · Unidade ${cu.u} de ${cu.m.units} (${unitDone(cu.m,cu.u)}/${ENGLISH_PARTS.length})</div>` + englishUnitItemsHtml(cu.m, cu.u, 'today');
+  } else {
+    h += `<div class="en-sub">Todas as unidades cadastradas estão concluídas. 🎉</div>`;
+  }
+  return h + `</div>`;
+}
+function renderEnglishPanel(){
+  const box = document.getElementById('ingles-weeks');
+  box.innerHTML = '';
+  const intro = document.createElement('div');
+  intro.innerHTML = englishClassesHtml('panel');
+  box.appendChild(intro);
+  const cu = currentUnit();
+  ENGLISH_MODULES.forEach(m=>{
+    const mh = document.createElement('div');
+    mh.className = 'en-sub';
+    mh.style.marginTop = '8px';
+    mh.textContent = m.name;
+    box.appendChild(mh);
+    for(let u=1; u<=m.units; u++){
+      const done = unitDone(m,u), total = ENGLISH_PARTS.length;
+      const weekEl = document.createElement('div'); weekEl.className = 'week';
+      const header = document.createElement('div'); header.className = 'week-header';
+      header.innerHTML = `<div><span class="week-title">Unidade ${u}${done===total?' ✓':''}</span></div><div class="week-progress">${done}/${total}</div>`;
+      const body = document.createElement('div');
+      const isCurrent = cu && cu.m.id===m.id && cu.u===u;
+      body.className = 'week-body' + ((done>0 && done<total) || isCurrent ? ' open' : '');
+      body.innerHTML = englishUnitItemsHtml(m,u,'panel');
+      header.addEventListener('click', ()=>body.classList.toggle('open'));
+      weekEl.appendChild(header); weekEl.appendChild(body); box.appendChild(weekEl);
+    }
+  });
+  bindEnglish(box);
+}
 
 function itemKey(track, weekIdx, itemIdx){ return `${track}-${weekIdx}-${itemIdx}`; }
 
@@ -796,11 +889,13 @@ function renderOverview(){
   const azStats = trackStats(azureWeeks,'azure');
   const peStats = trackStats(peWeeks,'pe');
   const appsStats = trackStats(appsWeeks,'apps');
+  const enStats = englishStats();
   const data = [
     {label:'Python', stats:pyStats, color:'var(--green)'},
     {label:'Azure AZ-900', stats:azStats, color:'var(--blue)'},
     {label:'Prompt Engineering', stats:peStats, color:'var(--violet)'},
     {label:'Apps', stats:appsStats, color:'var(--rose)'},
+    {label:'Inglês', stats:enStats, color:'var(--amber)'},
   ];
   const el = document.getElementById('overview');
   el.innerHTML = data.map(d=>{
@@ -826,7 +921,9 @@ function renderToday(){
   const idx = currentWeekIndex();
   const el = document.getElementById('today-content');
   if(idx < 0){
-    el.innerHTML = `<div class="today-empty">O cronograma começa em ${fmt(START_DATE)} (segunda-feira). Ainda não começou.</div>`;
+    // Antes de 19/10 só o inglês está liberado
+    el.innerHTML = renderEnglishToday() + `<div class="today-empty">Python e Prompt Engineering começam em ${fmt(START_DATE)} (segunda-feira).</div>`;
+    bindEnglish(el);
     return;
   }
   // Trilhas ativas na rotação de "Esta semana": apenas Python, Prompt Engineering e Inglês,
@@ -835,9 +932,9 @@ function renderToday(){
   const tracks = [
     {weeks:pythonWeeks, key:'python', badge:'b-python', label:'Python'},
     {weeks:peWeeks, key:'pe', badge:'b-pe', label:'Prompt Eng.'},
-    {weeks:englishWeeks, key:'ingles', badge:'b-en', label:'Inglês'},
   ];
-  let html = `<div style="font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-bottom:12px;">Semana ${idx+1} · ${weekRange(idx)}</div>`;
+  let html = renderEnglishToday();
+  html += `<div style="font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-bottom:12px;">Semana ${idx+1} · ${weekRange(idx)}</div>`;
   let any = false;
   tracks.forEach(t=>{
     if(idx < t.weeks.length){
@@ -858,6 +955,7 @@ function renderToday(){
   });
   if(!any) html += `<div class="today-empty">Nenhuma trilha tem conteúdo programado para esta semana — todas concluídas ou cronograma esgotado.</div>`;
   el.innerHTML = html;
+  bindEnglish(el);
 
   tracks.forEach(t=>{
     if(idx < t.weeks.length){
@@ -899,7 +997,7 @@ function render(){
   renderTrack('python-weeks', pythonWeeks, 'python');
   renderTrack('azure-weeks', azureWeeks, 'azure');
   renderTrack('pe-weeks', peWeeks, 'pe');
-  renderTrack('ingles-weeks', englishWeeks, 'ingles');
+  renderEnglishPanel();
   renderTrack('apps-weeks', appsWeeks, 'apps');
 }
 
@@ -942,7 +1040,8 @@ render();
   // ---- COMPROMISSOS DIÁRIOS (salvos na nuvem: users/{uid}/habitos/{AAAA-MM-DD}) ----
   const HABITS = [
     {key:'acordei', label:'Levantei dentro da janela do dia'},
-    {key:'estudei', label:'Estudei pelo menos 10 minutos'}
+    {key:'estudei', label:'Estudei pelo menos 10 minutos'},
+    {key:'ingles', label:'Estudei inglês na plataforma'}
   ];
   const WEEKDAYS = ['D','S','T','Q','Q','S','S'];
   let habitData = {};      // { '2026-10-10': {acordei:true, estudei:false}, ... }
@@ -1004,11 +1103,11 @@ render();
     const missedYesterday = HABITS.filter(h=>!isDone(h.key, yesterday));
     const todayPending = HABITS.filter(h=>!isDone(h.key, today));
     if(todayPending.length === 0){
-      hint.textContent = 'Os dois feitos hoje. 🎉';
+      hint.textContent = 'Tudo feito hoje. 🎉';
     } else if(missedYesterday.some(h=>todayPending.includes(h))){
       hint.textContent = 'Ontem ficou em branco em algum compromisso. Hoje é o dia de não falhar duas vezes.';
     } else {
-      hint.textContent = 'Versão mínima conta: levantar e 10 minutos de estudo.';
+      hint.textContent = 'Versão mínima conta: levantar, 10 minutos de estudo e um pouco de inglês.';
     }
   }
 
