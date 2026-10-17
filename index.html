@@ -167,6 +167,18 @@
 
   .en-sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin:2px 0 8px;}
   .en-class{padding:10px 14px;border:1px solid var(--line);border-radius:10px;margin-bottom:12px;background:var(--panel);}
+  .en-mod{padding:12px 14px;border:1px solid var(--line);border-radius:10px;margin-bottom:10px;background:var(--panel);}
+  .en-mod.current{border-color:var(--amber);}
+  .en-mod.done{opacity:.75;}
+  .en-mod-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;}
+  .en-mod-name{font-size:14px;font-weight:700;}
+  .en-mod-count{font-family:var(--mono);font-size:11.5px;color:var(--muted);}
+  .en-bar{height:7px;background:var(--panel-2);border-radius:99px;margin:8px 0 10px;overflow:hidden;}
+  .en-bar i{display:block;height:100%;background:var(--amber);border-radius:99px;transition:width .3s;}
+  .en-btns{display:flex;gap:8px;}
+  .en-btns button{font-family:inherit;font-size:13px;font-weight:700;padding:6px 14px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);cursor:pointer;}
+  .en-btns button.plus{background:var(--amber);border-color:var(--amber);color:#1a1205;}
+  .en-btns button:disabled{opacity:.4;cursor:default;}
   .en-class h4{margin:0 0 4px;font-size:12px;font-family:var(--mono);color:var(--amber);text-transform:uppercase;letter-spacing:.06em;}
   .badge{
     display:inline-block;
@@ -429,7 +441,7 @@
   <div class="panel" id="panel-ingles">
     <div class="track-head">
       <h2><span class="badge b-en">Inglês</span>Fluency Academy</h2>
-      <div class="meta">plataforma todos os dias · conversação às terças e quintas</div>
+      <div class="meta">plataforma todos os dias · progresso por aula · conversação às terças e quintas</div>
     </div>
     <div id="ingles-weeks"></div>
   </div>
@@ -690,11 +702,13 @@ const appsWeeks = [
   ]},
 ];
 
-// Inglês — Fluency Academy. O curso é organizado por módulos e unidades (não por semanas).
-// Cada unidade tem as mesmas 5 partes. Para incluir o próximo módulo, acrescente uma linha em ENGLISH_MODULES.
-const ENGLISH_PARTS = ["Vocabulário","Linguagem","Compreensão","Pronúncia","Prática do Inglês"];
+// Inglês — Fluency Academy. O progresso é contado por AULA concluída, módulo a módulo.
+// "total" é o número de aulas do módulo; "start" é quantas já estavam concluídas quando este contador foi criado.
 const ENGLISH_MODULES = [
-  {id:'M1', name:'Módulo 1 — First Steps', units:8, finished:[1,2]}  // finished: unidades já concluídas antes do Painel
+  {id:'M1', name:'First Steps',  total:42,  start:12},
+  {id:'M2', name:'Basic',        total:91,  start:0},
+  {id:'M3', name:'Intermediate', total:110, start:0},
+  {id:'M4', name:'Independent',  total:64,  start:0}
 ];
 // Conversação ao vivo: uma individual e uma em grupo por semana (terça ou quinta)
 const ENGLISH_CLASSES = [{k:'ind', label:'Conversação individual'}, {k:'grupo', label:'Conversação em grupo'}];
@@ -712,8 +726,7 @@ function saveState(state){
 }
 let state = loadState();
 
-// ---- Inglês: chaves, semente única e funções ----
-function enKey(modId, unit, partIdx){ return `en-${modId}-U${unit}-${partIdx}`; }
+// ---- Inglês: contador de aulas por módulo, semente única e funções ----
 function mondayOf(d){
   const x = new Date(d); x.setHours(12,0,0,0);
   const dow = (x.getDay()+6)%7;           // segunda = 0
@@ -721,29 +734,29 @@ function mondayOf(d){
   return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
 }
 function enClassKey(weekMonday, k){ return `en-aula-${weekMonday}-${k}`; }
+const enModKey = (m) => `en-mod-${m.id}`;
 (function seedEnglish(){
-  if(state['en-seed-v1']) return;          // só roda uma vez, para não desfazer o que você desmarcar depois
-  ENGLISH_MODULES.forEach(m=>{
-    (m.finished||[]).forEach(u=>{ ENGLISH_PARTS.forEach((_,i)=>{ state[enKey(m.id,u,i)] = true; }); });
-  });
-  state['en-seed-v1'] = true;
+  if(state['en-seed-v2']) return;          // só roda uma vez, para não desfazer o que você ajustar depois
+  ENGLISH_MODULES.forEach(m=>{ if(state[enModKey(m)] === undefined) state[enModKey(m)] = m.start; });
+  state['en-seed-v2'] = true;
   saveState(state);
 })();
-function unitDone(m, u){ return ENGLISH_PARTS.filter((_,i)=>state[enKey(m.id,u,i)]).length; }
-function currentUnit(){                    // primeira unidade ainda não concluída
-  for(const m of ENGLISH_MODULES){
-    for(let u=1; u<=m.units; u++){
-      if(unitDone(m,u) < ENGLISH_PARTS.length) return {m, u};
-    }
-  }
-  return null;
+function enCount(m){ return Math.max(0, Math.min(m.total, Number(state[enModKey(m)]) || 0)); }
+function enAdjust(modId, delta){
+  const m = ENGLISH_MODULES.find(x=>x.id===modId); if(!m) return;
+  state[enModKey(m)] = Math.max(0, Math.min(m.total, enCount(m) + delta));
+  saveState(state); render();
 }
-function toggleKey(key){ state[key] = !state[key]; saveState(state); render(); }
+function currentModule(){                  // primeiro módulo ainda não concluído
+  return ENGLISH_MODULES.find(m => enCount(m) < m.total) || null;
+}
 function englishStats(){
   let total=0, done=0;
-  ENGLISH_MODULES.forEach(m=>{ for(let u=1;u<=m.units;u++){ total += ENGLISH_PARTS.length; done += unitDone(m,u); } });
+  ENGLISH_MODULES.forEach(m=>{ total += m.total; done += enCount(m); });
   return {total, done};
 }
+const enPct = (m) => Math.floor(enCount(m) / m.total * 100);
+function toggleKey(key){ state[key] = !state[key]; saveState(state); render(); }
 function englishClassesHtml(prefix){
   // A semana de créditos vai de segunda a sábado: no domingo já conta como a semana seguinte
   const wk = mondayOf(new Date(Date.now() + 24*60*60*1000));
@@ -752,52 +765,33 @@ function englishClassesHtml(prefix){
     return `<div class="item${isDone?' done':''}"><input type="checkbox" id="${id}" data-en-key="${key}" ${isDone?'checked':''}><label for="${id}">${c.label}</label></div>`;
   }).join('') + `</div>`;
 }
-function englishUnitItemsHtml(m, u, prefix){
-  return ENGLISH_PARTS.map((name,i)=>{
-    const key = enKey(m.id,u,i), isDone = !!state[key], id = `${prefix}-${key}`;
-    return `<div class="item${isDone?' done':''}"><input type="checkbox" id="${id}" data-en-key="${key}" ${isDone?'checked':''}><label for="${id}">${name}</label></div>`;
-  }).join('');
+function englishModuleHtml(m, isCurrent){
+  const n = enCount(m), pct = enPct(m);
+  return `<div class="en-mod${isCurrent?' current':''}${n>=m.total?' done':''}">
+    <div class="en-mod-head"><span class="en-mod-name">${m.name}${n>=m.total?' ✓':''}</span><span class="en-mod-count">${n}/${m.total} aulas (${pct}%)</span></div>
+    <div class="en-bar"><i style="width:${pct}%"></i></div>
+    <div class="en-btns">
+      <button type="button" data-en-adj="${m.id}" data-delta="-1" ${n<=0?'disabled':''}>−1</button>
+      <button type="button" class="plus" data-en-adj="${m.id}" data-delta="1" ${n>=m.total?'disabled':''}>+1 aula</button>
+    </div></div>`;
 }
 function bindEnglish(root){
   root.querySelectorAll('input[data-en-key]').forEach(cb=>cb.addEventListener('change', ()=>toggleKey(cb.dataset.enKey)));
+  root.querySelectorAll('button[data-en-adj]').forEach(b=>b.addEventListener('click', ()=>enAdjust(b.dataset.enAdj, Number(b.dataset.delta))));
 }
 function renderEnglishToday(){
-  const cu = currentUnit();
+  const cm = currentModule();
   let h = `<div style="margin-bottom:14px;"><span class="badge b-en">Inglês</span><strong style="font-size:13.5px;">Fluency Academy</strong>`;
   h += englishClassesHtml('today');
-  if(cu){
-    h += `<div class="en-sub">${cu.m.name} · Unidade ${cu.u} de ${cu.m.units} (${unitDone(cu.m,cu.u)}/${ENGLISH_PARTS.length})</div>` + englishUnitItemsHtml(cu.m, cu.u, 'today');
-  } else {
-    h += `<div class="en-sub">Todas as unidades cadastradas estão concluídas. 🎉</div>`;
-  }
+  h += cm ? englishModuleHtml(cm, true) : `<div class="en-sub">Todos os módulos concluídos. 🎉</div>`;
   return h + `</div>`;
 }
 function renderEnglishPanel(){
   const box = document.getElementById('ingles-weeks');
-  box.innerHTML = '';
-  const intro = document.createElement('div');
-  intro.innerHTML = englishClassesHtml('panel');
-  box.appendChild(intro);
-  const cu = currentUnit();
-  ENGLISH_MODULES.forEach(m=>{
-    const mh = document.createElement('div');
-    mh.className = 'en-sub';
-    mh.style.marginTop = '8px';
-    mh.textContent = m.name;
-    box.appendChild(mh);
-    for(let u=1; u<=m.units; u++){
-      const done = unitDone(m,u), total = ENGLISH_PARTS.length;
-      const weekEl = document.createElement('div'); weekEl.className = 'week';
-      const header = document.createElement('div'); header.className = 'week-header';
-      header.innerHTML = `<div><span class="week-title">Unidade ${u}${done===total?' ✓':''}</span></div><div class="week-progress">${done}/${total}</div>`;
-      const body = document.createElement('div');
-      const isCurrent = cu && cu.m.id===m.id && cu.u===u;
-      body.className = 'week-body' + ((done>0 && done<total) || isCurrent ? ' open' : '');
-      body.innerHTML = englishUnitItemsHtml(m,u,'panel');
-      header.addEventListener('click', ()=>body.classList.toggle('open'));
-      weekEl.appendChild(header); weekEl.appendChild(body); box.appendChild(weekEl);
-    }
-  });
+  const cm = currentModule(), st = englishStats();
+  box.innerHTML = englishClassesHtml('panel') +
+    `<div class="en-sub" style="margin-top:6px">Total: ${st.done}/${st.total} aulas (${Math.floor(st.done/st.total*100)}%)</div>` +
+    ENGLISH_MODULES.map(m => englishModuleHtml(m, cm && cm.id === m.id)).join('');
   bindEnglish(box);
 }
 
