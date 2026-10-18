@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Estudos — Rota Prompt Engineering</title>
+
+<!-- PWA: instalação na tela inicial -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f1520">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" href="favicon-32.png" type="image/png">
+
+<!-- iOS / Safari -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Painel Estudos">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap">
+<style>
+  :root{
+    --bg:#0f1520;
+    --panel:#161e2c;
+    --panel-2:#1c2534;
+    --line:#2a3547;
+    --text:#e7ecf3;
+    --muted:#8b96a8;
+    --amber:#e8a33d;
+    --amber-dim:#8a6524;
+    --green:#5fb98c;
+    --blue:#5b8fd6;
+    --violet:#a487d6;
+    --rose:#d67ba0;
+    --mono:'JetBrains Mono','Courier New',monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    line-height:1.5;
+  }
+  header{
+    padding:32px 20px 20px;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#131a27,var(--bg));
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:0 16px;}
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin-bottom:8px;
+  }
+  h1{
+    font-size:26px;
+    margin:0 0 6px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+  }
+  .subtitle{color:var(--muted);font-size:14px;max-width:620px;}
+  .note{
+    margin-top:14px;
+    font-size:12.5px;
+    color:var(--muted);
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-left:3px solid var(--amber);
+    padding:10px 12px;
+    border-radius:4px;
+  }
+
+  .overview{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    margin-top:22px;
+  }
+  @media(min-width:640px){
+    .overview{grid-template-columns:repeat(5,1fr);}
+  }
+  .overview .stat:last-child:nth-child(odd){grid-column:1 / -1;}
+  @media (min-width:700px){ .overview .stat:last-child:nth-child(odd){grid-column:auto;} }
+  .stat{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px 14px 12px;
+  }
+  .stat .label{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+  .stat .value{font-size:22px;font-weight:700;margin-top:4px;}
+  .bar-track{height:5px;background:var(--panel-2);border-radius:3px;margin-top:8px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:3px;transition:width .3s;}
+
+  nav.tabs{
+    display:flex;
+    gap:6px;
+    max-width:920px;
+    margin:26px auto 0;
+    padding:0 16px;
+    flex-wrap:wrap;
+  }
+  .tab-btn{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.04em;
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--muted);
+    padding:9px 14px;
+    border-radius:6px 6px 0 0;
+    cursor:pointer;
+  }
+  .tab-btn.active{color:var(--text);border-bottom:2px solid var(--amber);background:var(--panel-2);}
+
+  main{max-width:920px;margin:0 auto;padding:22px 16px 60px;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .track-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:6px;}
+  .track-head h2{font-size:18px;margin:0;}
+  .track-head .meta{font-family:var(--mono);font-size:11.5px;color:var(--muted);}
+
+  .week{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:8px;
+    margin-bottom:10px;
+    overflow:hidden;
+  }
+  .week-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 14px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .week-header:hover{background:var(--panel-2);}
+  .week-title{font-size:13.5px;font-weight:600;}
+  .week-dates{font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:8px;}
+  .week-progress{font-family:var(--mono);font-size:11px;color:var(--muted);}
+  .week-body{padding:0 14px 12px;display:none;}
+  .week-body.open{display:block;}
+  .item{
+    display:flex;
+    align-items:flex-start;
+    gap:9px;
+    padding:7px 0;
+    border-top:1px solid var(--line);
+    font-size:13.5px;
+  }
+  .item:first-child{border-top:none;}
+  .item input[type=checkbox]{
+    margin-top:3px;
+    width:15px;height:15px;
+    accent-color:var(--amber);
+    flex-shrink:0;
+  }
+  .item label{cursor:pointer;}
+  .item.done label{color:var(--muted);text-decoration:line-through;}
+
+  .en-sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin:2px 0 8px;}
+  .en-class{padding:10px 14px;border:1px solid var(--line);border-radius:10px;margin-bottom:12px;background:var(--panel);}
+  .en-mod{padding:12px 14px;border:1px solid var(--line);border-radius:10px;margin-bottom:10px;background:var(--panel);}
+  .en-mod.current{border-color:var(--amber);}
+  .en-mod.done{opacity:.75;}
+  .en-mod-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;}
+  .en-mod-name{font-size:14px;font-weight:700;}
+  .en-mod-count{font-family:var(--mono);font-size:11.5px;color:var(--muted);}
+  .en-bar{height:7px;background:var(--panel-2);border-radius:99px;margin:8px 0 10px;overflow:hidden;}
+  .en-bar i{display:block;height:100%;background:var(--amber);border-radius:99px;transition:width .3s;}
+  .en-btns{display:flex;gap:8px;}
+  .en-btns button{font-family:inherit;font-size:13px;font-weight:700;padding:6px 14px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);cursor:pointer;}
+  .en-btns button.plus{background:var(--amber);border-color:var(--amber);color:#1a1205;}
+  .en-btns button:disabled{opacity:.4;cursor:default;}
+  .en-class h4{margin:0 0 4px;font-size:12px;font-family:var(--mono);color:var(--amber);text-transform:uppercase;letter-spacing:.06em;}
+  .badge{
+    display:inline-block;
+    font-family:var(--mono);
+    font-size:9.5px;
+    padding:2px 6px;
+    border-radius:3px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    margin-right:6px;
+  }
+  .b-python{background:#1f3a2e;color:var(--green);}
+  .b-azure{background:#1f2e46;color:var(--blue);}
+  .b-pe{background:#2c2140;color:var(--violet);}
+  .b-apps{background:#3a1f2c;color:var(--rose);}
+  .b-en{background:#3a2e1a;color:var(--amber);}
+
+  .today-box{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:16px;
+    margin-bottom:20px;
+  }
+  .today-box h3{margin:0 0 10px;font-size:14px;font-family:var(--mono);color:var(--amber);text-transform:uppercase;letter-spacing:.06em;}
+  .today-empty{color:var(--muted);font-size:13px;}
+
+  footer{
+    max-width:920px;margin:0 auto;padding:0 16px 40px;
+    color:var(--muted);font-size:11.5px;font-family:var(--mono);
+  }
+  .reset-btn{
+    background:none;border:1px solid var(--line);color:var(--muted);
+    font-family:var(--mono);font-size:11px;padding:6px 10px;border-radius:5px;
+    cursor:pointer;margin-top:10px;
+  }
+  .reset-btn:hover{border-color:var(--amber);color:var(--amber);}
+
+  /* ---- AUTENTICAÇÃO ---- */
+  #auth-screen{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  .auth-box{
+    width:100%;
+    max-width:340px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:28px 26px;
+  }
+  .auth-box h1{
+    font-size:20px;
+    margin:0 0 4px;
+    text-align:center;
+  }
+  .auth-box .auth-sub{
+    text-align:center;
+    color:var(--muted);
+    font-size:12.5px;
+    margin-bottom:22px;
+  }
+  .auth-field{margin-bottom:12px;}
+  .auth-field label{
+    display:block;
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    margin-bottom:5px;
+  }
+  .auth-field input{
+    width:100%;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:6px;
+    color:var(--text);
+    padding:10px 11px;
+    font-size:14px;
+    font-family:inherit;
+  }
+  .auth-field input:focus{outline:1px solid var(--amber);border-color:var(--amber);}
+  .auth-actions{display:flex;gap:8px;margin-top:18px;}
+  .auth-btn{
+    flex:1;
+    padding:10px;
+    border-radius:6px;
+    border:1px solid var(--line);
+    background:var(--panel-2);
+    color:var(--text);
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .auth-btn.primary{background:var(--amber);border-color:var(--amber);color:#1a1305;}
+  .auth-btn:disabled{opacity:.55;cursor:default;}
+  .auth-error{
+    margin-top:12px;
+    font-size:12.5px;
+    color:#e58a8a;
+    background:#3a1c1c;
+    border:1px solid #5a2a2a;
+    border-radius:6px;
+    padding:8px 10px;
+    display:none;
+  }
+  .auth-error.show{display:block;}
+  .logout-bar{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:10px;
+    max-width:920px;
+    margin:0 auto;
+    padding:8px 16px 0;
+    font-size:12px;
+    color:var(--muted);
+  }
+  .logout-btn{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--muted);
+    font-family:var(--mono);
+    font-size:11px;
+    padding:5px 10px;
+    border-radius:5px;
+    cursor:pointer;
+  }
+  .logout-btn:hover{border-color:var(--amber);color:var(--amber);}
+  .estante-link{
+    font-family:'Quicksand',system-ui,sans-serif;
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:.02em;
+    color:#5fd4c8;
+    text-decoration:none;
+    border:1px solid var(--line);
+    padding:5px 10px;
+    border-radius:5px;
+  }
+  .estante-link:hover{border-color:#5fd4c8;}
+  /* ---- COMPROMISSOS DIÁRIOS ---- */
+  .habit-box{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-left:3px solid #5fd4c8;
+    border-radius:8px;
+    padding:16px;
+    margin-bottom:20px;
+  }
+  .habit-box h3{margin:0 0 4px;font-size:14px;font-family:var(--mono);color:#5fd4c8;text-transform:uppercase;letter-spacing:.06em;}
+  .habit-hint{font-size:12.5px;color:var(--muted);margin:0 0 12px;min-height:18px;}
+  .habit-row{padding:10px 0;border-top:1px solid var(--line);}
+  .habit-row:first-of-type{border-top:none;}
+  .habit-main{display:flex;align-items:center;gap:9px;font-size:14px;}
+  .habit-main input[type=checkbox]{width:18px;height:18px;accent-color:#5fd4c8;flex-shrink:0;}
+  .habit-main label{cursor:pointer;flex:1;}
+  .habit-streak{font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:nowrap;}
+  .habit-dots{display:flex;gap:6px;margin:8px 0 0 27px;}
+  .dot{width:22px;text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--muted);}
+  .dot i{display:block;width:14px;height:14px;margin:0 auto 3px;border-radius:50%;border:1.5px solid var(--line);}
+  .dot.on i{background:#5fd4c8;border-color:#5fd4c8;}
+  .dot.today i{border-color:var(--amber);}
+  .dot.today.on i{border-color:#5fd4c8;}
+  #app-content{display:none;}
+</style>
+</head>
+<body>
+
+<div id="auth-screen">
+  <div class="auth-box">
+    <h1>Painel de Estudos</h1>
+    <div class="auth-sub">Acesso restrito — mesmo login do Livro-Caixa</div>
+    <div class="auth-field">
+      <label for="auth-email">E-mail</label>
+      <input type="email" id="auth-email" autocomplete="username">
+    </div>
+    <div class="auth-field">
+      <label for="auth-password">Senha</label>
+      <input type="password" id="auth-password" autocomplete="current-password">
+    </div>
+    <div class="auth-actions">
+      <button class="auth-btn primary" id="btn-login">Entrar</button>
+      <button class="auth-btn" id="btn-signup">Criar conta</button>
+    </div>
+    <div class="auth-error" id="auth-error"></div>
+  </div>
+</div>
+
+<div id="app-content">
+<div class="logout-bar">
+  <a class="estante-link" href="https://brunaraujjo.github.io/estante-bruna/" target="_blank" rel="noopener">📚 Estante</a>
+  <span id="user-email"></span>
+  <button class="logout-btn" id="btn-logout">Sair</button>
+</div>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Painel de Estudos · Bruna</div>
+    <h1>Rota para Prompt Engineering</h1>
+    <div class="subtitle">Foco atual: Python e Prompt Engineering, todas as manhãs, depois do café (mínimo de 10 minutos, ideal 1 hora) — início segunda-feira, 19/10/2026. Inglês (Fluency Academy): plataforma todos os dias e conversação (individual e em grupo) às terças e quintas — o inglês já está liberado desde 08/10.</div>
+    <div class="note">
+      ⚠️ Nota: as trilhas de Azure (AZ-900) e Apps continuam disponíveis nas abas acima para consulta e progresso já feito, mas ficam fora da rotação de "Esta semana" — o foco é só Python e Prompt Engineering, uma de cada vez, para evitar a sobrecarga que travou o estudo antes. A trilha de Prompt Engineering (semanas 1–6) agora segue fontes reais e gratuitas — tutorial interativo da Anthropic, curso curto da DeepLearning.AI, whitepaper de Prompt Engineering do Google e o guia da DAIR.AI — com os links na própria aba. De 18/09 a 18/10 é o período de revisão leve antes do início oficial em 19/10 (ver plano separado). O inglês já está em andamento (Fluency Academy, desde 08/10): estudo diário na plataforma, por unidade, e conversação às terças e quintas, uma individual e uma em grupo por semana. Datas e cargas horárias das trilhas de Azure e Apps continuam sendo estimativas, não confirmadas por você.
+    </div>
+    <div class="overview" id="overview"></div>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs"></nav>
+
+<main>
+  <div class="panel active" id="panel-hoje">
+    <div class="habit-box">
+      <h3>Meus compromissos · hoje</h3>
+      <div class="habit-hint" id="habit-hint"></div>
+      <div id="habit-content"><div class="today-empty">Carregando…</div></div>
+    </div>
+    <div class="today-box">
+      <h3>Esta semana</h3>
+      <div id="today-content"></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-python">
+    <div class="track-head">
+      <h2><span class="badge b-python">Python</span>Fundamentos</h2>
+      <div class="meta">8 semanas · ~30 min/dia, seg–sex</div>
+    </div>
+    <div id="python-weeks"></div>
+  </div>
+
+  <div class="panel" id="panel-azure">
+    <div class="track-head">
+      <h2><span class="badge b-azure">Azure</span>AZ-900</h2>
+      <div class="meta">6 semanas · 30 min/dia · progresso migrado do Painel-Bruna · pausada por ora</div>
+    </div>
+    <div id="azure-weeks"></div>
+  </div>
+
+  <div class="panel" id="panel-pe">
+    <div class="track-head">
+      <h2><span class="badge b-pe">Prompt Eng.</span>Roteiro estruturado</h2>
+      <div class="meta">12 semanas · fontes: Anthropic, DeepLearning.AI, Google, DAIR.AI</div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin:-6px 0 14px;line-height:1.6;">
+      Fontes usadas nas semanas 1–6:
+      <a href="https://github.com/anthropics/prompt-eng-interactive-tutorial" target="_blank" style="color:var(--violet);">tutorial interativo da Anthropic</a>,
+      <a href="https://www.deeplearning.ai/courses/chatgpt-prompt-eng/" target="_blank" style="color:var(--violet);">curso curto da DeepLearning.AI</a>,
+      <a href="https://www.leeboonstra.dev/writing/write-prompting-whitepaper/" target="_blank" style="color:var(--violet);">whitepaper de Prompt Engineering do Google</a>,
+      <a href="https://www.promptingguide.ai/" target="_blank" style="color:var(--violet);">guia da DAIR.AI</a>.
+    </div>
+    <div id="pe-weeks"></div>
+  </div>
+
+  <div class="panel" id="panel-ingles">
+    <div class="track-head">
+      <h2><span class="badge b-en">Inglês</span>Fluency Academy</h2>
+      <div class="meta">plataforma todos os dias · progresso por aula · conversação às terças e quintas</div>
+    </div>
+    <div id="ingles-weeks"></div>
+  </div>
+
+  <div class="panel" id="panel-apps">
+    <div class="track-head">
+      <h2><span class="badge b-apps">Apps</span>Criação de apps (HTML/CSS/JS)</h2>
+      <div class="meta">7 semanas · base pra continuar construindo apps como este · pausada por ora</div>
+    </div>
+    <div id="apps-weeks"></div>
+  </div>
+
+  <footer>
+    Progresso salvo automaticamente neste navegador.
+    <br><button class="reset-btn" onclick="if(confirm('Apagar todo o progresso salvo?')){localStorage.removeItem('painel-estudos-v1');location.reload();}">Zerar progresso</button>
+  </footer>
+</main>
+</div>
+
+<script>
+const START_DATE = new Date(2026,9,19); // segunda-feira, 19/10/2026 — início do cronograma novo
+
+function addDays(base, days){
+  const d = new Date(base);
+  d.setDate(d.getDate()+days);
+  return d;
+}
+function fmt(d){
+  return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+}
+function weekRange(weekIndex){
+  const start = addDays(START_DATE, weekIndex*7);
+  const end = addDays(start, 4); // seg a sex
+  return `${fmt(start)} – ${fmt(end)}`;
+}
+
+// ---- CONTEÚDO (estrutura estimada — ajustar conforme seus planos reais) ----
+
+const pythonWeeks = [
+  {title:"Lógica de programação e variáveis", items:[
+    "Variáveis, tipos de dados (int, float, str, bool)",
+    "Operadores aritméticos e lógicos",
+    "Entrada e saída (input/print)",
+    "Exercícios curtos de fixação"
+  ]},
+  {title:"Condicionais e laços", items:[
+    "if / elif / else",
+    "Laço for e while",
+    "Break e continue",
+    "Mini exercício: validador de dados simples"
+  ]},
+  {title:"Listas, tuplas e dicionários", items:[
+    "Criação e manipulação de listas",
+    "Tuplas e quando usá-las",
+    "Dicionários (chave/valor)",
+    "Exercício: organizar dados tabulares simples"
+  ]},
+  {title:"Funções e modularização", items:[
+    "Definição de funções, parâmetros e retorno",
+    "Escopo de variáveis",
+    "Organização de código em módulos",
+    "Exercício: refatorar script anterior em funções"
+  ]},
+  {title:"Strings e arquivos", items:[
+    "Manipulação de strings (slicing, métodos)",
+    "Leitura e escrita de arquivos (.txt, .csv)",
+    "Tratamento básico de erros (try/except)",
+    "Exercício: ler um CSV simples e resumir dados"
+  ]},
+  {title:"Bibliotecas básicas", items:[
+    "Introdução a requests (chamadas HTTP simples)",
+    "Trabalhando com JSON",
+    "Instalação de pacotes com pip",
+    "Exercício: consumir uma API pública simples"
+  ]},
+  {title:"Projeto prático", items:[
+    "Definir um pequeno script utilitário (ex: organizador de dados pessoais)",
+    "Implementar com o que foi aprendido",
+    "Testar e revisar",
+    "Documentar no GitHub"
+  ]},
+  {title:"Revisão geral", items:[
+    "Revisar lógica, estruturas de dados e funções",
+    "Refazer exercícios que geraram dúvida",
+    "Anotar lacunas para aprofundar depois",
+    "Planejar próximos passos (Python intermediário ou aplicado a dados)"
+  ]},
+];
+
+const azureWeeks = [
+  {title:"O que é cloud?", items:[
+    "SEG — O que é computação em nuvem",
+    "TER — Vantagens da cloud (escalabilidade, elasticidade)",
+    "QUA — IaaS vs PaaS vs SaaS",
+    "QUI — Cloud pública, privada e híbrida",
+    "SEX — Revisão + quiz do módulo",
+    "SÁB — Simulado rápido (5–10 questões)"
+  ]},
+  {title:"Serviços de computação", items:[
+    "SEG — Máquinas Virtuais (VMs)",
+    "TER — Azure App Service e Functions",
+    "QUA — Containers e Kubernetes (conceitual)",
+    "QUI — Azure Virtual Desktop",
+    "SEX — Revisão",
+    "SÁB — Simulado"
+  ]},
+  {title:"Rede, Armazenamento e BD", items:[
+    "SEG — Redes virtuais (VNet, VPN, ExpressRoute)",
+    "TER — Armazenamento (Blob, File, Queue, Disk)",
+    "QUA — Banco de dados (SQL, Cosmos DB)",
+    "QUI — Azure DNS e Content Delivery",
+    "SEX — Revisão",
+    "SÁB — Simulado"
+  ]},
+  {title:"Segurança e Identidade", items:[
+    "SEG — Microsoft Entra ID (antigo Azure AD)",
+    "TER — Autenticação: SSO, MFA, passwordless",
+    "QUA — Azure Security Center e Defender",
+    "QUI — Modelo de responsabilidade compartilhada",
+    "SEX — Revisão",
+    "SÁB — Simulado"
+  ]},
+  {title:"Governança, Custos e Compliance", items:[
+    "SEG — Azure Policy e RBAC",
+    "TER — Calculadora de preços e TCO",
+    "QUA — Planos de suporte Azure",
+    "QUI — Compliance (GDPR, ISO, SOC)",
+    "SEX — Revisão",
+    "SÁB — Simulado"
+  ]},
+  {title:"Revisão geral + decisão de agendar", items:[
+    "SEG — Revisar pontos fracos — Semanas 1 e 2",
+    "TER — Revisar pontos fracos — Semanas 3 e 4",
+    "QUA — Revisar pontos fracos — Semana 5",
+    "QUI — Revisão geral rápida",
+    "SEX — Practice Assessment completo (45 min)",
+    "SÁB — Se ≥80% → agendar o exame! 🎯"
+  ]},
+];
+
+const peWeeks = [
+  {title:"Fundamentos — Tutorial interativo da Anthropic (cap. 1–3)", items:[
+    "Fazer os capítulos 1–3 do tutorial interativo da Anthropic (github.com/anthropics/prompt-eng-interactive-tutorial): estrutura básica de um prompt, clareza e diretividade",
+    "Capítulo 3: atribuir papéis ao modelo (role prompting) e observar como muda a resposta",
+    "Separar dados de instruções usando delimitadores/tags",
+    "Praticar 3 prompts próprios aplicando esses princípios"
+  ]},
+  {title:"Fundamentos — Tutorial da Anthropic (cap. 4–6)", items:[
+    "Capítulo 4: formatar a saída do modelo (JSON, listas, tags XML)",
+    "Capítulo 5: pedir ao modelo para pensar passo a passo (chain-of-thought) antes da resposta final",
+    "Capítulo 6: dar exemplos ao modelo (few-shot prompting)",
+    "Comparar respostas com e sem essas técnicas nos seus próprios testes"
+  ]},
+  {title:"Curso DeepLearning.AI — ChatGPT Prompt Engineering for Developers", items:[
+    "Fazer o curso curto e gratuito 'ChatGPT Prompt Engineering for Developers' (deeplearning.ai/courses/chatgpt-prompt-eng, ~1h30)",
+    "Praticar os notebooks do curso (iterar em prompts, resumir texto, transformar formato)",
+    "Anotar 3 técnicas do curso que dá pra aplicar no seu trabalho de avaliação de respostas",
+    "Comparar a abordagem do curso com o que viu no tutorial da Anthropic"
+  ]},
+  {title:"Whitepaper de Prompt Engineering — Google (Lee Boonstra)", items:[
+    "Ler as seções sobre zero-shot, few-shot e system prompting",
+    "Ler as seções sobre chain-of-thought, self-consistency e ReAct",
+    "Ler as seções de boas práticas gerais (ser específico, usar exemplos, testar variações, documentar tentativas)",
+    "Resumir em suas palavras as 5 técnicas mais úteis pro seu trabalho"
+  ]},
+  {title:"Guia DAIR.AI (Prompt Engineering Guide)", items:[
+    "Ler a seção de técnicas avançadas (Tree of Thoughts, ReAct, visão geral de RAG) em promptingguide.ai",
+    "Ler a seção sobre riscos e limitações (alucinação, prompt injection, viés)",
+    "Explorar a seção de casos de uso ligados a avaliação/classificação de respostas",
+    "Guardar como referência de consulta — não precisa decorar tudo"
+  ]},
+  {title:"Boas práticas da Anthropic aplicadas ao seu trabalho", items:[
+    "Ler a documentação oficial da Anthropic sobre prompting best practices (docs.claude.com)",
+    "Praticar uso de tags XML para estruturar prompts complexos",
+    "Praticar prompt chaining (dividir uma tarefa grande em etapas menores)",
+    "Aplicar 1 técnica nova em um prompt real do seu trabalho (OneForma/Lighthouse/Sovrano)"
+  ]},
+  {title:"Avaliação estruturada de respostas de LLM", items:[
+    "Critérios de avaliação (precisão, relevância, tom, segurança)",
+    "Construir rubricas próprias de avaliação",
+    "Comparar com sua experiência prática em OneForma/TELUS/Appen",
+    "Registrar 3 exemplos reais avaliados com rubrica"
+  ]},
+  {title:"Avaliação estruturada (continuação)", items:[
+    "Avaliação comparativa entre respostas (A vs B)",
+    "Identificar tipos de falha em respostas de modelo",
+    "Escrever justificativas claras de avaliação",
+    "Revisar e refinar rubricas criadas"
+  ]},
+  {title:"Construção de portfólio", items:[
+    "Selecionar 2–3 estudos de caso de prompts que você melhorou",
+    "Documentar problema → prompt → resultado → aprendizado",
+    "Organizar em repositório GitHub próprio",
+    "Rascunhar página/resumo do portfólio"
+  ]},
+  {title:"Construção de portfólio (continuação)", items:[
+    "Finalizar estudos de caso com formatação clara",
+    "Revisar redação e clareza técnica",
+    "Publicar no GitHub Pages ou LinkedIn",
+    "Pedir feedback (se possível) de alguém da área"
+  ]},
+  {title:"Preparação para candidaturas", items:[
+    "Revisar currículo com foco em Prompt Engineering",
+    "Mapear vagas e requisitos comuns",
+    "Preparar respostas para perguntas técnicas frequentes",
+    "Ajustar LinkedIn com foco na nova posição"
+  ]},
+  {title:"Preparação para candidaturas (continuação)", items:[
+    "Simular entrevista técnica (perguntas de avaliação de prompt)",
+    "Revisar portfólio com olhar de recrutador",
+    "Aplicar para 2–3 vagas de teste",
+    "Planejar próximos 3 meses do roteiro de 10 meses"
+  ]},
+];
+
+const appsWeeks = [
+  {title:"HTML — estrutura de páginas", items:[
+    "Tags básicas (div, section, header, form, table)",
+    "Estrutura semântica de uma página",
+    "Formulários e inputs (text, checkbox, select)",
+    "Exercício: montar o esqueleto de um app simples (sem estilo)"
+  ]},
+  {title:"CSS — estilo e layout", items:[
+    "Seletores, box model, cores e tipografia",
+    "Flexbox (alinhar e distribuir elementos)",
+    "Grid básico (para layouts em colunas)",
+    "Exercício: estilizar o esqueleto da semana anterior"
+  ]},
+  {title:"JavaScript — fundamentos", items:[
+    "Variáveis, funções, eventos (onclick, onchange)",
+    "Manipulação do DOM (querySelector, innerHTML)",
+    "Arrays e objetos em JS",
+    "Exercício: fazer um botão que altera o conteúdo da página"
+  ]},
+  {title:"JavaScript aplicado — dados e persistência", items:[
+    "JSON: transformar dados em texto e vice-versa",
+    "localStorage — salvar dados no navegador",
+    "Renderizar listas dinamicamente a partir de dados (como neste próprio painel)",
+    "Exercício: criar uma lista de tarefas simples com salvamento"
+  ]},
+  {title:"Git e GitHub — versionamento", items:[
+    "Conceitos: repositório, commit, push, pull",
+    "Fluxo básico: git add, commit, push",
+    "Organização de um repositório (README, estrutura de pastas)",
+    "Prática: subir um arquivo simples para um repositório novo"
+  ]},
+  {title:"GitHub Pages — publicar e evoluir apps", items:[
+    "Ativar GitHub Pages num repositório",
+    "Publicar um arquivo HTML único (como o Painel-Bruna)",
+    "Testar, revisar erros comuns (caminho de arquivo, cache)",
+    "Planejar o próximo app: definir problema real a resolver"
+  ]},
+  {title:"Proteção e autenticação básica", items:[
+    "Entender a diferença entre 'senha simples no JS' e autenticação real (a primeira não protege de verdade — o código fica visível)",
+    "Repositório privado vs público no GitHub (e o que muda no GitHub Pages)",
+    "Visão geral de serviços de autenticação prontos (ex: Firebase Auth, Supabase Auth) — sem aprofundar ainda",
+    "Decidir, caso a caso, se um app precisa de proteção real ou só de repositório privado"
+  ]},
+];
+
+// Inglês — Fluency Academy. O progresso é contado por AULA concluída, módulo a módulo.
+// "total" é o número de aulas do módulo; "start" é quantas já estavam concluídas quando este contador foi criado.
+const ENGLISH_MODULES = [
+  {id:'M1', name:'First Steps',  total:42,  start:12},
+  {id:'M2', name:'Basic',        total:91,  start:0},
+  {id:'M3', name:'Intermediate', total:110, start:0},
+  {id:'M4', name:'Independent',  total:64,  start:0}
+];
+// Conversação ao vivo: uma individual e uma em grupo por semana (terça ou quinta)
+const ENGLISH_CLASSES = [{k:'ind', label:'Conversação individual'}, {k:'grupo', label:'Conversação em grupo'}];
+
+// ---- STORAGE ----
+const STORAGE_KEY = 'painel-estudos-v1';
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  }catch(e){ return {}; }
+}
+function saveState(state){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+}
+let state = loadState();
+
+// ---- Inglês: contador de aulas por módulo, semente única e funções ----
+function mondayOf(d){
+  const x = new Date(d); x.setHours(12,0,0,0);
+  const dow = (x.getDay()+6)%7;           // segunda = 0
+  x.setDate(x.getDate()-dow);
+  return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
+}
+function enClassKey(weekMonday, k){ return `en-aula-${weekMonday}-${k}`; }
+const enModKey = (m) => `en-mod-${m.id}`;
+(function seedEnglish(){
+  if(state['en-seed-v2']) return;          // só roda uma vez, para não desfazer o que você ajustar depois
+  ENGLISH_MODULES.forEach(m=>{ if(state[enModKey(m)] === undefined) state[enModKey(m)] = m.start; });
+  state['en-seed-v2'] = true;
+  saveState(state);
+})();
+function enCount(m){ return Math.max(0, Math.min(m.total, Number(state[enModKey(m)]) || 0)); }
+function enAdjust(modId, delta){
+  const m = ENGLISH_MODULES.find(x=>x.id===modId); if(!m) return;
+  state[enModKey(m)] = Math.max(0, Math.min(m.total, enCount(m) + delta));
+  saveState(state); render();
+}
+function currentModule(){                  // primeiro módulo ainda não concluído
+  return ENGLISH_MODULES.find(m => enCount(m) < m.total) || null;
+}
+function englishStats(){
+  let total=0, done=0;
+  ENGLISH_MODULES.forEach(m=>{ total += m.total; done += enCount(m); });
+  return {total, done};
+}
+const enPct = (m) => Math.floor(enCount(m) / m.total * 100);
+function toggleKey(key){ state[key] = !state[key]; saveState(state); render(); }
+function englishClassesHtml(prefix){
+  // A semana de créditos vai de segunda a sábado: no domingo já conta como a semana seguinte
+  const wk = mondayOf(new Date(Date.now() + 24*60*60*1000));
+  return `<div class="en-class"><h4>Conversação desta semana (seg a sáb)</h4>` + ENGLISH_CLASSES.map(c=>{
+    const key = enClassKey(wk, c.k), isDone = !!state[key], id = `${prefix}-${key}`;
+    return `<div class="item${isDone?' done':''}"><input type="checkbox" id="${id}" data-en-key="${key}" ${isDone?'checked':''}><label for="${id}">${c.label}</label></div>`;
+  }).join('') + `</div>`;
+}
+function englishModuleHtml(m, isCurrent){
+  const n = enCount(m), pct = enPct(m);
+  return `<div class="en-mod${isCurrent?' current':''}${n>=m.total?' done':''}">
+    <div class="en-mod-head"><span class="en-mod-name">${m.name}${n>=m.total?' ✓':''}</span><span class="en-mod-count">${n}/${m.total} aulas (${pct}%)</span></div>
+    <div class="en-bar"><i style="width:${pct}%"></i></div>
+    <div class="en-btns">
+      <button type="button" data-en-adj="${m.id}" data-delta="-1" ${n<=0?'disabled':''}>−1</button>
+      <button type="button" class="plus" data-en-adj="${m.id}" data-delta="1" ${n>=m.total?'disabled':''}>+1 aula</button>
+    </div></div>`;
+}
+function bindEnglish(root){
+  root.querySelectorAll('input[data-en-key]').forEach(cb=>cb.addEventListener('change', ()=>toggleKey(cb.dataset.enKey)));
+  root.querySelectorAll('button[data-en-adj]').forEach(b=>b.addEventListener('click', ()=>enAdjust(b.dataset.enAdj, Number(b.dataset.delta))));
+}
+function renderEnglishToday(){
+  const cm = currentModule();
+  let h = `<div style="margin-bottom:14px;"><span class="badge b-en">Inglês</span><strong style="font-size:13.5px;">Fluency Academy</strong>`;
+  h += englishClassesHtml('today');
+  h += cm ? englishModuleHtml(cm, true) : `<div class="en-sub">Todos os módulos concluídos. 🎉</div>`;
+  return h + `</div>`;
+}
+function renderEnglishPanel(){
+  const box = document.getElementById('ingles-weeks');
+  const cm = currentModule(), st = englishStats();
+  box.innerHTML = englishClassesHtml('panel') +
+    `<div class="en-sub" style="margin-top:6px">Total: ${st.done}/${st.total} aulas (${Math.floor(st.done/st.total*100)}%)</div>` +
+    ENGLISH_MODULES.map(m => englishModuleHtml(m, cm && cm.id === m.id)).join('');
+  bindEnglish(box);
+}
+
+function itemKey(track, weekIdx, itemIdx){ return `${track}-${weekIdx}-${itemIdx}`; }
+
+// ---- Migração única do progresso real do AZ-900 (salvo no Painel-Bruna, mesma origem) ----
+(function migrateAzureProgress(){
+  try{
+    const old = JSON.parse(localStorage.getItem('az900_checked') || '{}');
+    let changed = false;
+    Object.keys(old).forEach(k=>{
+      const m = k.match(/^w(\d+)_d(\d+)$/);
+      if(m && old[k]){
+        const wi = Number(m[1]), di = Number(m[2]);
+        if(di <= 5){ // dia 6 (domingo) é descanso e não entra na lista de itens
+          const newKey = itemKey('azure', wi, di);
+          if(!state[newKey]){ state[newKey] = true; changed = true; }
+        }
+      }
+    });
+    if(changed) saveState(state);
+  }catch(e){ /* sem progresso antigo ou dado inválido — segue normalmente */ }
+})();
+
+function toggleItem(track, weekIdx, itemIdx){
+  const key = itemKey(track, weekIdx, itemIdx);
+  state[key] = !state[key];
+  saveState(state);
+  render();
+}
+
+// ---- RENDER ----
+function renderTrack(containerId, weeks, track, badgeClass, badgeLabel){
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  weeks.forEach((week, wIdx) => {
+    const total = week.items.length;
+    const done = week.items.filter((_,iIdx)=>state[itemKey(track,wIdx,iIdx)]).length;
+
+    const weekEl = document.createElement('div');
+    weekEl.className = 'week';
+
+    const header = document.createElement('div');
+    header.className = 'week-header';
+    header.innerHTML = `
+      <div>
+        <span class="week-title">Semana ${wIdx+1} — ${week.title}</span>
+        <span class="week-dates">${weekRange(wIdx)}</span>
+      </div>
+      <div class="week-progress">${done}/${total}</div>
+    `;
+    const body = document.createElement('div');
+    body.className = 'week-body' + (done>0 && done<total ? ' open':'');
+
+    week.items.forEach((text, iIdx) => {
+      const key = itemKey(track,wIdx,iIdx);
+      const isDone = !!state[key];
+      const itemEl = document.createElement('div');
+      itemEl.className = 'item' + (isDone?' done':'');
+      const cbId = `cb-${key}`;
+      itemEl.innerHTML = `
+        <input type="checkbox" id="${cbId}" ${isDone?'checked':''}>
+        <label for="${cbId}">${text}</label>
+      `;
+      itemEl.querySelector('input').addEventListener('change', ()=>toggleItem(track,wIdx,iIdx));
+      body.appendChild(itemEl);
+    });
+
+    header.addEventListener('click', ()=>{ body.classList.toggle('open'); });
+    weekEl.appendChild(header);
+    weekEl.appendChild(body);
+    container.appendChild(weekEl);
+  });
+}
+
+function trackStats(weeks, track){
+  let total=0, done=0;
+  weeks.forEach((week,wIdx)=>{
+    week.items.forEach((_,iIdx)=>{
+      total++;
+      if(state[itemKey(track,wIdx,iIdx)]) done++;
+    });
+  });
+  return {total, done};
+}
+
+function renderOverview(){
+  const pyStats = trackStats(pythonWeeks,'python');
+  const azStats = trackStats(azureWeeks,'azure');
+  const peStats = trackStats(peWeeks,'pe');
+  const appsStats = trackStats(appsWeeks,'apps');
+  const enStats = englishStats();
+  const data = [
+    {label:'Python', stats:pyStats, color:'var(--green)'},
+    {label:'Azure AZ-900', stats:azStats, color:'var(--blue)'},
+    {label:'Prompt Engineering', stats:peStats, color:'var(--violet)'},
+    {label:'Apps', stats:appsStats, color:'var(--rose)'},
+    {label:'Inglês', stats:enStats, color:'var(--amber)'},
+  ];
+  const el = document.getElementById('overview');
+  el.innerHTML = data.map(d=>{
+    const pct = d.stats.total ? Math.round(d.stats.done/d.stats.total*100) : 0;
+    return `
+      <div class="stat">
+        <div class="label">${d.label}</div>
+        <div class="value">${pct}%</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${d.color}"></div></div>
+      </div>
+    `;
+  }).join('');
+}
+
+function currentWeekIndex(){
+  const now = new Date();
+  const diffDays = Math.floor((now - START_DATE) / (1000*60*60*24));
+  const idx = Math.floor(diffDays/7);
+  return idx;
+}
+
+function renderToday(){
+  const idx = currentWeekIndex();
+  const el = document.getElementById('today-content');
+  if(idx < 0){
+    // Antes de 19/10 só o inglês está liberado
+    el.innerHTML = renderEnglishToday() + `<div class="today-empty">Python e Prompt Engineering começam em ${fmt(START_DATE)} (segunda-feira).</div>`;
+    bindEnglish(el);
+    return;
+  }
+  // Trilhas ativas na rotação de "Esta semana": apenas Python, Prompt Engineering e Inglês,
+  // para evitar sobrecarga. Azure e Apps ficam pausadas aqui, mas continuam
+  // acessíveis (com o progresso já feito) nas próprias abas.
+  const tracks = [
+    {weeks:pythonWeeks, key:'python', badge:'b-python', label:'Python'},
+    {weeks:peWeeks, key:'pe', badge:'b-pe', label:'Prompt Eng.'},
+  ];
+  let html = renderEnglishToday();
+  html += `<div style="font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-bottom:12px;">Semana ${idx+1} · ${weekRange(idx)}</div>`;
+  let any = false;
+  tracks.forEach(t=>{
+    if(idx < t.weeks.length){
+      any = true;
+      const week = t.weeks[idx];
+      html += `<div style="margin-bottom:14px;"><span class="badge ${t.badge}">${t.label}</span><strong style="font-size:13.5px;">${week.title}</strong>`;
+      html += week.items.map((text,iIdx)=>{
+        const key = itemKey(t.key,idx,iIdx);
+        const isDone = !!state[key];
+        const cbId = `today-${key}`;
+        return `<div class="item${isDone?' done':''}" style="padding-left:2px;">
+          <input type="checkbox" id="${cbId}" ${isDone?'checked':''}>
+          <label for="${cbId}">${text}</label>
+        </div>`;
+      }).join('');
+      html += `</div>`;
+    }
+  });
+  if(!any) html += `<div class="today-empty">Nenhuma trilha tem conteúdo programado para esta semana — todas concluídas ou cronograma esgotado.</div>`;
+  el.innerHTML = html;
+  bindEnglish(el);
+
+  tracks.forEach(t=>{
+    if(idx < t.weeks.length){
+      t.weeks[idx].items.forEach((_,iIdx)=>{
+        const key = itemKey(t.key,idx,iIdx);
+        const cb = document.getElementById(`today-${key}`);
+        if(cb) cb.addEventListener('change', ()=>toggleItem(t.key,idx,iIdx));
+      });
+    }
+  });
+}
+
+// ---- TABS ----
+const tabsDef = [
+  {id:'hoje', label:'Esta semana'},
+  {id:'python', label:'Python'},
+  {id:'azure', label:'Azure'},
+  {id:'pe', label:'Prompt Eng.'},
+  {id:'ingles', label:'Inglês'},
+  {id:'apps', label:'Apps'},
+];
+function renderTabs(){
+  const nav = document.getElementById('tabs');
+  nav.innerHTML = tabsDef.map(t=>`<button class="tab-btn" data-tab="${t.id}">${t.label}</button>`).join('');
+  nav.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+    });
+  });
+  nav.querySelector('[data-tab="hoje"]').classList.add('active');
+}
+
+function render(){
+  renderOverview();
+  renderToday();
+  renderTrack('python-weeks', pythonWeeks, 'python');
+  renderTrack('azure-weeks', azureWeeks, 'azure');
+  renderTrack('pe-weeks', peWeeks, 'pe');
+  renderEnglishPanel();
+  renderTrack('apps-weeks', appsWeeks, 'apps');
+}
+
+renderTabs();
+render();
+</script>
+
+<script type="module">
+  // Firebase v10.7.0 — verifique em firebase.google.com/docs/web/setup se há versão mais recente
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+  import {
+    getFirestore,
+    collection,
+    doc,
+    setDoc,
+    onSnapshot
+  } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDAoPv4qk8RHjhq6QFn5voIAFbMtzzwPYc",
+    authDomain: "livro-caixa-63f4a.firebaseapp.com",
+    projectId: "livro-caixa-63f4a",
+    storageBucket: "livro-caixa-63f4a.firebasestorage.app",
+    messagingSenderId: "524566546588",
+    appId: "1:524566546588:web:e9666674336e2f68d6c559",
+    measurementId: "G-GEZZLXZ22H"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // ---- COMPROMISSOS DIÁRIOS (salvos na nuvem: users/{uid}/habitos/{AAAA-MM-DD}) ----
+  const HABITS = [
+    {key:'acordei', label:'Levantei dentro da janela do dia'},
+    {key:'estudei', label:'Estudei pelo menos 10 minutos'},
+    {key:'ingles', label:'Estudei inglês na plataforma'}
+  ];
+  const WEEKDAYS = ['D','S','T','Q','Q','S','S'];
+  let habitData = {};      // { '2026-10-10': {acordei:true, estudei:false}, ... }
+  let habitUid = null;
+  let habitUnsub = null;
+
+  // Chave da data no fuso do celular (não usa UTC, para não virar o dia às 21h)
+  function dayKey(d){
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }
+  function daysAgo(n){
+    const d = new Date();
+    d.setHours(12,0,0,0);          // meio-dia evita problemas de horário de verão
+    d.setDate(d.getDate()-n);
+    return d;
+  }
+  function isDone(habitKey, dKey){
+    return !!(habitData[dKey] && habitData[dKey][habitKey]);
+  }
+  // Dias seguidos: conta para trás a partir de hoje. Se hoje ainda não foi marcado,
+  // começa de ontem (o dia ainda não acabou, então não "quebra" a sequência).
+  function streakOf(habitKey){
+    let n = isDone(habitKey, dayKey(daysAgo(0))) ? 0 : 1;
+    let count = 0;
+    while(n < 400 && isDone(habitKey, dayKey(daysAgo(n)))){ count++; n++; }
+    return count;
+  }
+
+  function renderHabits(){
+    const box = document.getElementById('habit-content');
+    const hint = document.getElementById('habit-hint');
+    if(!box) return;
+    const today = dayKey(daysAgo(0));
+    box.innerHTML = HABITS.map(h=>{
+      const dots = [6,5,4,3,2,1,0].map(n=>{
+        const d = daysAgo(n);
+        const on = isDone(h.key, dayKey(d));
+        return `<div class="dot${on?' on':''}${n===0?' today':''}"><i></i>${WEEKDAYS[d.getDay()]}</div>`;
+      }).join('');
+      const st = streakOf(h.key);
+      return `<div class="habit-row">
+        <div class="habit-main">
+          <input type="checkbox" id="habit-${h.key}" data-habit="${h.key}" ${isDone(h.key,today)?'checked':''}>
+          <label for="habit-${h.key}">${h.label}</label>
+          <span class="habit-streak">${st} ${st===1?'dia seguido':'dias seguidos'}</span>
+        </div>
+        <div class="habit-dots">${dots}</div>
+      </div>`;
+    }).join('');
+    box.querySelectorAll('input[data-habit]').forEach(cb=>{
+      cb.addEventListener('change', ()=> saveHabit(cb.dataset.habit, cb.checked));
+    });
+
+    // Lembrete da regra "não falhar duas vezes seguidas"
+    const yesterday = dayKey(daysAgo(1));
+    const missedYesterday = HABITS.filter(h=>!isDone(h.key, yesterday));
+    const todayPending = HABITS.filter(h=>!isDone(h.key, today));
+    if(todayPending.length === 0){
+      hint.textContent = 'Tudo feito hoje. 🎉';
+    } else if(missedYesterday.some(h=>todayPending.includes(h))){
+      hint.textContent = 'Ontem ficou em branco em algum compromisso. Hoje é o dia de não falhar duas vezes.';
+    } else {
+      hint.textContent = 'Versão mínima conta: levantar, 10 minutos de estudo e um pouco de inglês.';
+    }
+  }
+
+  async function saveHabit(habitKey, value){
+    if(!habitUid) return;
+    const key = dayKey(daysAgo(0));
+    // Atualiza na tela já, sem esperar a nuvem
+    habitData[key] = Object.assign({}, habitData[key], {[habitKey]: value});
+    renderHabits();
+    try{
+      await setDoc(doc(db, 'users', habitUid, 'habitos', key),
+                   {[habitKey]: value}, {merge:true});
+    }catch(err){
+      document.getElementById('habit-hint').textContent =
+        'Não consegui salvar na nuvem agora. Confira a conexão e tente de novo.';
+    }
+  }
+
+  function startHabits(uid){
+    habitUid = uid;
+    if(habitUnsub) habitUnsub();
+    habitUnsub = onSnapshot(collection(db, 'users', uid, 'habitos'), (snap)=>{
+      habitData = {};
+      snap.forEach(d=>{ habitData[d.id] = d.data(); });
+      renderHabits();
+    }, ()=>{
+      document.getElementById('habit-content').innerHTML =
+        '<div class="today-empty">Não consegui carregar os compromissos agora.</div>';
+    });
+  }
+  function stopHabits(){
+    if(habitUnsub){ habitUnsub(); habitUnsub = null; }
+    habitUid = null;
+    habitData = {};
+  }
+
+  const authScreen = document.getElementById('auth-screen');
+  const appContent = document.getElementById('app-content');
+  const emailInput = document.getElementById('auth-email');
+  const passwordInput = document.getElementById('auth-password');
+  const errorBox = document.getElementById('auth-error');
+  const btnLogin = document.getElementById('btn-login');
+  const btnSignup = document.getElementById('btn-signup');
+  const btnLogout = document.getElementById('btn-logout');
+  const userEmailLabel = document.getElementById('user-email');
+
+  function showError(msg){
+    errorBox.textContent = msg;
+    errorBox.classList.add('show');
+  }
+  function clearError(){
+    errorBox.classList.remove('show');
+    errorBox.textContent = '';
+  }
+
+  // Mensagens de erro comuns do Firebase Auth traduzidas.
+  // Não tenho certeza se essa lista cobre todos os códigos possíveis —
+  // em caso de erro não listado, mostro o código bruto retornado pelo Firebase.
+  function translateAuthError(err){
+    const map = {
+      'auth/invalid-email': 'E-mail inválido.',
+      'auth/user-not-found': 'Usuário não encontrado.',
+      'auth/wrong-password': 'Senha incorreta.',
+      'auth/invalid-credential': 'E-mail ou senha incorretos.',
+      'auth/email-already-in-use': 'Este e-mail já tem uma conta.',
+      'auth/weak-password': 'A senha precisa ter pelo menos 6 caracteres.',
+      'auth/missing-password': 'Digite a senha.',
+      'auth/too-many-requests': 'Muitas tentativas. Aguarde um pouco e tente de novo.'
+    };
+    return map[err.code] || `Erro: ${err.code || err.message}`;
+  }
+
+  function setButtonsDisabled(disabled){
+    btnLogin.disabled = disabled;
+    btnSignup.disabled = disabled;
+  }
+
+  btnLogin.addEventListener('click', async () => {
+    clearError();
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    if(!email || !password){ showError('Preencha e-mail e senha.'); return; }
+    setButtonsDisabled(true);
+    try{
+      await signInWithEmailAndPassword(auth, email, password);
+    }catch(err){
+      showError(translateAuthError(err));
+    }finally{
+      setButtonsDisabled(false);
+    }
+  });
+
+  btnSignup.addEventListener('click', async () => {
+    clearError();
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    if(!email || !password){ showError('Preencha e-mail e senha.'); return; }
+    setButtonsDisabled(true);
+    try{
+      await createUserWithEmailAndPassword(auth, email, password);
+    }catch(err){
+      showError(translateAuthError(err));
+    }finally{
+      setButtonsDisabled(false);
+    }
+  });
+
+  btnLogout.addEventListener('click', async () => {
+    await signOut(auth);
+  });
+
+  onAuthStateChanged(auth, (user) => {
+    if(user){
+      authScreen.style.display = 'none';
+      appContent.style.display = 'block';
+      userEmailLabel.textContent = user.email || '';
+      startHabits(user.uid);
+    } else {
+      authScreen.style.display = 'flex';
+      appContent.style.display = 'none';
+      passwordInput.value = '';
+      stopHabits();
+    }
+  });
+</script>
+
+<script>
+  // Registro do service worker — necessário para o Chrome oferecer "Instalar app"
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => {
+        console.warn('Falha ao registrar service worker:', err);
+      });
+    });
+  }
+</script>
+
+</body>
+</html>
