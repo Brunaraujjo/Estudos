@@ -82,7 +82,7 @@
     margin-top:22px;
   }
   @media(min-width:640px){
-    .overview{grid-template-columns:repeat(5,1fr);}
+    .overview{grid-template-columns:repeat(3,1fr);}
   }
   .overview .stat:last-child:nth-child(odd){grid-column:1 / -1;}
   @media (min-width:700px){ .overview .stat:last-child:nth-child(odd){grid-column:auto;} }
@@ -384,9 +384,9 @@
   <div class="wrap">
     <div class="eyebrow">Painel de Estudos · Bruna</div>
     <h1>Rota para Prompt Engineering</h1>
-    <div class="subtitle">Foco atual: Python e Prompt Engineering, todas as manhãs, depois do café (mínimo de 10 minutos, ideal 1 hora) — início segunda-feira, 19/10/2026. Inglês (Fluency Academy): plataforma todos os dias e conversação (individual e em grupo) às terças e quintas — o inglês já está liberado desde 08/10.</div>
+    <div class="subtitle">Manhãs, depois do café, a partir de 19/10/2026. Python: 30 min por dia, de segunda a sexta, no primeiro bloco. Prompt Engineering: 1 h às segundas, quartas e sextas. Inglês (Fluency Academy): plataforma todos os dias e conversação às terças e quintas; nesses dois dias, só Python e inglês.</div>
     <div class="note">
-      ⚠️ Nota: as trilhas de Azure (AZ-900) e Apps continuam disponíveis nas abas acima para consulta e progresso já feito, mas ficam fora da rotação de "Esta semana" — o foco é só Python e Prompt Engineering, uma de cada vez, para evitar a sobrecarga que travou o estudo antes. A trilha de Prompt Engineering (semanas 1–6) agora segue fontes reais e gratuitas — tutorial interativo da Anthropic, curso curto da DeepLearning.AI, whitepaper de Prompt Engineering do Google e o guia da DAIR.AI — com os links na própria aba. De 18/09 a 18/10 é o período de revisão leve antes do início oficial em 19/10 (ver plano separado). O inglês já está em andamento (Fluency Academy, desde 08/10): estudo diário na plataforma, por unidade, e conversação às terças e quintas, uma individual e uma em grupo por semana. Datas e cargas horárias das trilhas de Azure e Apps continuam sendo estimativas, não confirmadas por você.
+      ⚠️ Nota: o foco é Python e Prompt Engineering, mais o inglês. Python vem primeiro porque é onde você testa e mede os prompts (evals) e porque várias vagas pedem. Prompt Engineering segue fontes gratuitas: tutorial interativo da Anthropic, curso curto da DeepLearning.AI, whitepaper do Google e guia da DAIR.AI, com os links na própria aba. As trilhas de Azure (AZ-900) e Apps ficam pausadas: continuam nas abas para consulta e progresso já feito, mas sem datas e fora do resumo e da rotação de "Esta semana". Se perder um dia, não acumule: faça na próxima sessão e empurre o resto. O inglês está em andamento desde 08/10.
     </div>
     <div class="overview" id="overview"></div>
   </div>
@@ -426,9 +426,10 @@
   <div class="panel" id="panel-pe">
     <div class="track-head">
       <h2><span class="badge b-pe">Prompt Eng.</span>Roteiro estruturado</h2>
-      <div class="meta">12 semanas · fontes: Anthropic, DeepLearning.AI, Google, DAIR.AI</div>
+      <div class="meta">11 semanas · 3 sessões de 1 h (seg, qua, sex) · fontes: Anthropic, DeepLearning.AI, Google, DAIR.AI</div>
     </div>
     <div style="font-size:12px;color:var(--muted);margin:-6px 0 14px;line-height:1.6;">
+      <strong>Cada sessão de 1 h:</strong> 15 min lendo o conceito, 35 min praticando e 10 min anotando no seu caderno (conceito em uma frase, o prompt que você escreveu e o que mudou na resposta).<br>
       Fontes usadas nas semanas 1–6:
       <a href="https://github.com/anthropics/prompt-eng-interactive-tutorial" target="_blank" style="color:var(--violet);">tutorial interativo da Anthropic</a>,
       <a href="https://www.deeplearning.ai/courses/chatgpt-prompt-eng/" target="_blank" style="color:var(--violet);">curso curto da DeepLearning.AI</a>,
@@ -511,16 +512,16 @@ const pythonWeeks = [
     "Tratamento básico de erros (try/except)",
     "Exercício: ler um CSV simples e resumir dados"
   ]},
-  {title:"Bibliotecas básicas", items:[
+  {title:"Bibliotecas e primeira chamada à API", items:[
     "Introdução a requests (chamadas HTTP simples)",
     "Trabalhando com JSON",
     "Instalação de pacotes com pip",
-    "Exercício: consumir uma API pública simples"
+    "Exercício: primeira chamada ao Claude com o SDK Python da Anthropic (a API costuma ser paga por uso: defina um limite de gasto no console)"
   ]},
   {title:"Projeto prático", items:[
-    "Definir um pequeno script utilitário (ex: organizador de dados pessoais)",
+    "Definir o projeto: script que lê casos de teste de um CSV, chama o modelo e compara com a resposta esperada",
     "Implementar com o que foi aprendido",
-    "Testar e revisar",
+    "Calcular acertos (precisão, recall e F1 simples) e revisar",
     "Documentar no GitHub"
   ]},
   {title:"Revisão geral", items:[
@@ -583,77 +584,60 @@ const azureWeeks = [
 ];
 
 const peWeeks = [
-  {title:"Fundamentos — Tutorial interativo da Anthropic (cap. 1–3)", items:[
-    "Fazer os capítulos 1–3 do tutorial interativo da Anthropic (github.com/anthropics/prompt-eng-interactive-tutorial): estrutura básica de um prompt, clareza e diretividade",
-    "Capítulo 3: atribuir papéis ao modelo (role prompting) e observar como muda a resposta",
-    "Separar dados de instruções usando delimitadores/tags",
-    "Praticar 3 prompts próprios aplicando esses princípios"
+  {title:"Tutorial da Anthropic — cap. 1 a 3", items:[
+    "SEG — Cap. 1 (Basic Prompt Structure): ler a lição + as seções básicas do guia DAIR.AI (15 min) → exercícios (35 min) → caderno (10 min). Versão em Google Sheets (extensão Claude for Sheets; pode pedir chave de API)",
+    "QUA — Cap. 2 (Being Clear and Direct): ler a lição + boas práticas do whitepaper do Google (ser específico, instruções claras) → exercícios → caderno",
+    "SEX — Cap. 3 (Assigning Roles): ler a lição + seção de system, contextual e role prompting do whitepaper → exercícios → caderno"
   ]},
-  {title:"Fundamentos — Tutorial da Anthropic (cap. 4–6)", items:[
-    "Capítulo 4: formatar a saída do modelo (JSON, listas, tags XML)",
-    "Capítulo 5: pedir ao modelo para pensar passo a passo (chain-of-thought) antes da resposta final",
-    "Capítulo 6: dar exemplos ao modelo (few-shot prompting)",
-    "Comparar respostas com e sem essas técnicas nos seus próprios testes"
+  {title:"Tutorial da Anthropic — cap. 4 a 6", items:[
+    "SEG — Cap. 4 (Separating Data from Instructions): ler a lição (delimitadores e tags XML) → exercícios → caderno",
+    "QUA — Cap. 5 (Formatting Output & Speaking for Claude): ler a lição (JSON, listas, tags) → exercícios → caderno",
+    "SEX — Cap. 6 (Precognition): ler a lição + seção de chain-of-thought do whitepaper → exercícios → caderno"
   ]},
-  {title:"Curso DeepLearning.AI — ChatGPT Prompt Engineering for Developers", items:[
-    "Fazer o curso curto e gratuito 'ChatGPT Prompt Engineering for Developers' (deeplearning.ai/courses/chatgpt-prompt-eng, ~1h30)",
-    "Praticar os notebooks do curso (iterar em prompts, resumir texto, transformar formato)",
-    "Anotar 3 técnicas do curso que dá pra aplicar no seu trabalho de avaliação de respostas",
-    "Comparar a abordagem do curso com o que viu no tutorial da Anthropic"
+  {title:"Tutorial da Anthropic — cap. 7 a 9", items:[
+    "SEG — Cap. 7 (Using Examples): ler a lição + seção de zero-shot, one-shot e few-shot do whitepaper → exercícios → caderno",
+    "QUA — Cap. 8 (Avoiding Hallucinations): ler a lição + seção de riscos e limitações do guia DAIR.AI → exercícios → caderno",
+    "SEX — Cap. 9 (Building Complex Prompts): ler a lição (chatbot e serviços jurídicos) → exercícios → caderno"
   ]},
-  {title:"Whitepaper de Prompt Engineering — Google (Lee Boonstra)", items:[
-    "Ler as seções sobre zero-shot, few-shot e system prompting",
-    "Ler as seções sobre chain-of-thought, self-consistency e ReAct",
-    "Ler as seções de boas práticas gerais (ser específico, usar exemplos, testar variações, documentar tentativas)",
-    "Resumir em suas palavras as 5 técnicas mais úteis pro seu trabalho"
+  {title:"Fechar o tutorial + curso DeepLearning.AI", items:[
+    "SEG — Cap. 9 (conclusão): exercícios de serviços financeiros e de código; ler o apêndice (encadear prompts, tool use, busca e recuperação) → caderno",
+    "QUA — Curso 'ChatGPT Prompt Engineering for Developers' (deeplearning.ai/courses/chatgpt-prompt-eng, curso curto e gratuito, ~1h30): primeira metade, praticando os notebooks",
+    "SEX — Curso da DeepLearning.AI: segunda metade; anotar 3 técnicas que dá pra aplicar na avaliação de respostas"
   ]},
-  {title:"Guia DAIR.AI (Prompt Engineering Guide)", items:[
-    "Ler a seção de técnicas avançadas (Tree of Thoughts, ReAct, visão geral de RAG) em promptingguide.ai",
-    "Ler a seção sobre riscos e limitações (alucinação, prompt injection, viés)",
-    "Explorar a seção de casos de uso ligados a avaliação/classificação de respostas",
-    "Guardar como referência de consulta — não precisa decorar tudo"
+  {title:"Técnicas avançadas (leitura + prática)", items:[
+    "SEG — Whitepaper do Google: ler self-consistency e ReAct → testar com um problema seu → caderno",
+    "QUA — Guia DAIR.AI: ler técnicas avançadas (Tree of Thoughts, visão geral de RAG) → testar → caderno",
+    "SEX — Escolher no caderno as 5 técnicas mais úteis pro seu trabalho e refazer um prompt seu com elas. Guardar o guia DAIR.AI como consulta"
   ]},
-  {title:"Boas práticas da Anthropic aplicadas ao seu trabalho", items:[
-    "Ler a documentação oficial da Anthropic sobre prompting best practices (docs.claude.com)",
-    "Praticar uso de tags XML para estruturar prompts complexos",
-    "Praticar prompt chaining (dividir uma tarefa grande em etapas menores)",
-    "Aplicar 1 técnica nova em um prompt real do seu trabalho (OneForma/Lighthouse/Sovrano)"
+  {title:"Boas práticas da Anthropic na prática", items:[
+    "SEG — Ler a documentação oficial da Anthropic sobre prompting best practices (docs.claude.com) → testar uma ideia → caderno",
+    "QUA — Praticar tags XML e prompt chaining (dividir uma tarefa grande em etapas menores) → caderno",
+    "SEX — Aplicar 1 técnica nova em um prompt seu de estudo (não use conteúdo confidencial de projetos) → caderno"
   ]},
-  {title:"Avaliação estruturada de respostas de LLM", items:[
-    "Critérios de avaliação (precisão, relevância, tom, segurança)",
-    "Construir rubricas próprias de avaliação",
-    "Comparar com sua experiência prática em OneForma/TELUS/Appen",
-    "Registrar 3 exemplos reais avaliados com rubrica"
+  {title:"Evals — avaliar prompts com método", items:[
+    "SEG — Ler na documentação da Claude Platform o conteúdo sobre criar avaliações (evals) → caderno",
+    "QUA — Montar um conjunto pequeno de casos de teste com resposta esperada (ex.: ~20 casos do seu juiz de proofreading)",
+    "SEX — Rodar e medir (precisão, recall, F1) com o Python que você já tem; anotar o que falhou"
   ]},
-  {title:"Avaliação estruturada (continuação)", items:[
-    "Avaliação comparativa entre respostas (A vs B)",
-    "Identificar tipos de falha em respostas de modelo",
-    "Escrever justificativas claras de avaliação",
-    "Revisar e refinar rubricas criadas"
+  {title:"Avaliação estruturada de respostas", items:[
+    "SEG — Critérios (precisão, relevância, tom, segurança) e rubricas próprias → caderno",
+    "QUA — Comparação A vs B, tipos de falha e justificativas claras",
+    "SEX — Registrar 3 exemplos seus avaliados com rubrica (sem dados confidenciais de projetos) e refinar as rubricas"
   ]},
-  {title:"Construção de portfólio", items:[
-    "Selecionar 2–3 estudos de caso de prompts que você melhorou",
-    "Documentar problema → prompt → resultado → aprendizado",
-    "Organizar em repositório GitHub próprio",
-    "Rascunhar página/resumo do portfólio"
+  {title:"Portfólio (1)", items:[
+    "SEG — Escolher 2–3 estudos de caso de prompts que você melhorou (inclua o juiz de proofreading); o caderno é a matéria-prima",
+    "QUA — Documentar cada caso: problema → prompt → resultado → aprendizado",
+    "SEX — Organizar os casos num lugar publicável (GitHub ou LinkedIn)"
   ]},
-  {title:"Construção de portfólio (continuação)", items:[
-    "Finalizar estudos de caso com formatação clara",
-    "Revisar redação e clareza técnica",
-    "Publicar no GitHub Pages ou LinkedIn",
-    "Pedir feedback (se possível) de alguém da área"
+  {title:"Portfólio (2)", items:[
+    "SEG — Finalizar os casos com formatação clara",
+    "QUA — Revisar redação e clareza técnica",
+    "SEX — Publicar no GitHub Pages ou LinkedIn e pedir feedback a alguém da área"
   ]},
-  {title:"Preparação para candidaturas", items:[
-    "Revisar currículo com foco em Prompt Engineering",
-    "Mapear vagas e requisitos comuns",
-    "Preparar respostas para perguntas técnicas frequentes",
-    "Ajustar LinkedIn com foco na nova posição"
-  ]},
-  {title:"Preparação para candidaturas (continuação)", items:[
-    "Simular entrevista técnica (perguntas de avaliação de prompt)",
-    "Revisar portfólio com olhar de recrutador",
-    "Aplicar para 2–3 vagas de teste",
-    "Planejar próximos 3 meses do roteiro de 10 meses"
+  {title:"Candidaturas", items:[
+    "SEG — Revisar currículo e LinkedIn com foco em Prompt Engineering; mapear vagas e requisitos comuns",
+    "QUA — Preparar respostas para perguntas técnicas frequentes e simular uma entrevista",
+    "SEX — Aplicar para 2–3 vagas de teste e planejar os próximos 3 meses"
   ]},
 ];
 
@@ -824,7 +808,8 @@ function toggleItem(track, weekIdx, itemIdx){
 }
 
 // ---- RENDER ----
-function renderTrack(containerId, weeks, track, badgeClass, badgeLabel){
+function renderTrack(containerId, weeks, track, badgeClass, badgeLabel, showDates){
+  if(showDates === undefined) showDates = true;
   const container = document.getElementById(containerId);
   container.innerHTML = '';
   weeks.forEach((week, wIdx) => {
@@ -839,7 +824,7 @@ function renderTrack(containerId, weeks, track, badgeClass, badgeLabel){
     header.innerHTML = `
       <div>
         <span class="week-title">Semana ${wIdx+1} — ${week.title}</span>
-        <span class="week-dates">${weekRange(wIdx)}</span>
+        ${showDates ? '<span class="week-dates">'+weekRange(wIdx)+'</span>' : '<span class="week-dates">pausada</span>'}
       </div>
       <div class="week-progress">${done}/${total}</div>
     `;
@@ -886,9 +871,7 @@ function renderOverview(){
   const enStats = englishStats();
   const data = [
     {label:'Python', stats:pyStats, color:'var(--green)'},
-    {label:'Azure AZ-900', stats:azStats, color:'var(--blue)'},
     {label:'Prompt Engineering', stats:peStats, color:'var(--violet)'},
-    {label:'Apps', stats:appsStats, color:'var(--rose)'},
     {label:'Inglês', stats:enStats, color:'var(--amber)'},
   ];
   const el = document.getElementById('overview');
@@ -911,6 +894,15 @@ function currentWeekIndex(){
   return idx;
 }
 
+function todayPlan(){
+  const dow = new Date().getDay();
+  let txt;
+  if(dow === 0 || dow === 6) txt = 'Fim de semana: descanso. Se quiser, só a plataforma de inglês.';
+  else if(dow === 2 || dow === 4) txt = 'Hoje: Python 30 min (primeiro bloco) + inglês (plataforma e conversação). Sem Prompt Eng.';
+  else txt = 'Hoje: Python 30 min (primeiro bloco) + Prompt Eng. 1 h (15 min lendo, 35 praticando, 10 anotando) + inglês na plataforma.';
+  return `<div style="font-size:13px;color:var(--text);background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:6px;padding:9px 12px;margin-bottom:14px;">${txt}</div>`;
+}
+
 function renderToday(){
   const idx = currentWeekIndex();
   const el = document.getElementById('today-content');
@@ -927,7 +919,7 @@ function renderToday(){
     {weeks:pythonWeeks, key:'python', badge:'b-python', label:'Python'},
     {weeks:peWeeks, key:'pe', badge:'b-pe', label:'Prompt Eng.'},
   ];
-  let html = renderEnglishToday();
+  let html = todayPlan() + renderEnglishToday();
   html += `<div style="font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-bottom:12px;">Semana ${idx+1} · ${weekRange(idx)}</div>`;
   let any = false;
   tracks.forEach(t=>{
@@ -947,9 +939,23 @@ function renderToday(){
       html += `</div>`;
     }
   });
+  // Pendências da semana anterior (para não sumirem quando a semana vira)
+  const pendingBlocks = [];
+  tracks.forEach(t=>{
+    if(idx > 0 && idx-1 < t.weeks.length){
+      t.weeks[idx-1].items.forEach((text,iIdx)=>{
+        const key = itemKey(t.key,idx-1,iIdx);
+        if(!state[key]) pendingBlocks.push({t, wIdx:idx-1, iIdx, text, key});
+      });
+    }
+  });
+  if(pendingBlocks.length){
+    html += `<div class="en-class"><h4>Pendente da semana anterior</h4>` + pendingBlocks.map(p=>`<div class="item"><input type="checkbox" id="today-${p.key}"><label for="today-${p.key}"><span class="badge ${p.t.badge}">${p.t.label}</span>${p.text}</label></div>`).join('') + `</div>`;
+  }
   if(!any) html += `<div class="today-empty">Nenhuma trilha tem conteúdo programado para esta semana — todas concluídas ou cronograma esgotado.</div>`;
   el.innerHTML = html;
   bindEnglish(el);
+  pendingBlocks.forEach(p=>{ const cb = document.getElementById(`today-${p.key}`); if(cb) cb.addEventListener('change', ()=>toggleItem(p.t.key,p.wIdx,p.iIdx)); });
 
   tracks.forEach(t=>{
     if(idx < t.weeks.length){
@@ -966,10 +972,10 @@ function renderToday(){
 const tabsDef = [
   {id:'hoje', label:'Esta semana'},
   {id:'python', label:'Python'},
-  {id:'azure', label:'Azure'},
+  {id:'azure', label:'Azure (pausada)'},
   {id:'pe', label:'Prompt Eng.'},
   {id:'ingles', label:'Inglês'},
-  {id:'apps', label:'Apps'},
+  {id:'apps', label:'Apps (pausada)'},
 ];
 function renderTabs(){
   const nav = document.getElementById('tabs');
@@ -989,10 +995,10 @@ function render(){
   renderOverview();
   renderToday();
   renderTrack('python-weeks', pythonWeeks, 'python');
-  renderTrack('azure-weeks', azureWeeks, 'azure');
+  renderTrack('azure-weeks', azureWeeks, 'azure', null, null, false);
   renderTrack('pe-weeks', peWeeks, 'pe');
   renderEnglishPanel();
-  renderTrack('apps-weeks', appsWeeks, 'apps');
+  renderTrack('apps-weeks', appsWeeks, 'apps', null, null, false);
 }
 
 renderTabs();
